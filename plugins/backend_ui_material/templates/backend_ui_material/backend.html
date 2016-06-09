@@ -1,0 +1,48 @@
+{% extends 'backend_ui_material/site.html' %}
+{%- block body_class -%}site-navbar-small site-menubar-unfold site-menubar-keep console hide site-menubar-keep{%- endblock -%}
+{%- block body -%}
+    <div class="navbar-bg {{ bg_color }}" data-timezone="8" data-color="{{ bg_color }}" ></div>
+    <nav class="site-navbar navbar navbar-default navbar-fixed-top navbar-mega" role="navigation">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle hamburger hamburger-close navbar-toggle-left hided"
+                    data-toggle="menubar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="hamburger-bar"></span>
+            </button>
+            <button type="button" class="navbar-toggle collapsed" data-target="#site-navbar-collapse"
+                    data-toggle="collapse">
+                <i class="icon zmdi zmdi-more" aria-hidden="true"></i>
+            </button>
+            <div class="navbar-brand navbar-brand-center" data-toggle="menubar">
+                <img class="navbar-brand-logo" src="//static.orderplus.com.tw/img/logo.png" title="Remark">
+                <span class="navbar-brand-text"><b>{{ backend_title }}</b></span>
+            </div>
+            <button type="button" class="navbar-toggle collapsed" data-target="#site-navbar-search"
+                    data-toggle="collapse">
+                <span class="sr-only">Toggle Search</span>
+                <i class="icon zmdi zmdi-search" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="navbar-container container-fluid">
+            {%- include 'backend_ui_material/backend_include_navbar.html' -%}
+        </div>
+    </nav>
+    <div class="site-menubar">
+        {%- include 'backend_ui_material/backend_include_sitemenu.html' -%}
+    </div>
+    <div class="page animsition" id="page">
+        <input type="filepicker" data-fp-apikey="AYPuY3cceRRuWQWUl6X78z" onchange="console.log(event.fpfile.url)">
+        {%- block content -%}{%- endblock -%}
+    </div>
+    <footer class="site-footer navbar-fixed-bottom hidden-xs">
+        <div class="site-footer-legal"></div>
+        <div class="site-footer-right">© 2015 <a href="/static/img">{{ backend_title }}</a></div>
+    </footer>
+{%- endblock -%}
+{%- block more_css_include %}
+    <link rel="stylesheet" href="/plugins/backend_ui_material/static/css/console.css??r={{ app_version }}">
+{%- endblock -%}
+{%- block more_js_include %}
+    <script src="/plugins/backend_ui_material/static/js/material_backend.js?r={{ app_version }}"></script>
+    <script type="text/javascript" src="//api.filestackapi.com/filestack.js"></script>
+{%- endblock -%}

@@ -1,0 +1,65 @@
+{% extends 'layouts/console_page.html' %}
+{% set list = context[scaffolding.plural] %}
+{% block page_header %}{% endblock %}
+{% block content %}
+    <ul id="record-list"></ul>
+    <ul class="order_list hide">
+        {% set n = 0 %}
+        {% for order in list %}
+            <li class="order_item">
+                <span><a href="/console/sales/detail/{{- this.encode_key(order) -}}">{{ order.order_info_id }}{{ order.title }}</a></span>
+                <span class="date hide label bg-grey-700 pull-right moment" data-moment-func="fromNow">{{ order.created }}</span>
+                <span>{{ order.state }}</span>
+                <span>{{ order.receiver_name }}</span>
+                <span>{{ order.receiver_address }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+{% block panel_footer %}{{ next_page_link() }}{% endblock %}
+
+{% block page_scripts %}
+    <script type="text/javascript">
+    $(function(){
+        var day_format = ["今天-日-YYYY-MM-DD", "昨天-日-YYYY-MM-DD", "本月-月-YYYY-MM", "YYYY年MM月-月-YYYY-MM"];
+        var mn = [
+            moment().subtract(0, 'days').format(day_format[0]),
+            moment().subtract(1, 'days').format(day_format[1]),
+            moment().subtract(0, 'months').format(day_format[2])
+        ];
+        for (var i=1;i<10;i++){
+            mn.push(moment().subtract(i, 'months').format(day_format[3]));
+            day_format.push("YYYY年MM月-月-YYYY-MM");
+        }
+        $.each(mn, function(index, item){
+            var name = item.split("-")[0];
+            $("#record-list").append('<li class="record-list-mn hide"><span class="date-title">' + name + '</span>' +
+                '<div class="panel">' +
+                '<ul class="list-group list-group-bordered">' +
+                '</ul>' +
+                '</div>' +
+                '</li>');
+           });
+        $(".order_item").each(function(){
+            var _this = $(this);
+            var html = '<li class="list-group-item">' + $(this).html() + '</li>';
+            var d = moment($(this).find("span.date").text(), "YYYY-MM-DD hh:mm:ss").add(OrderPlus.setting.timezone, "hours");
+            $.each(day_format, function(index, item){
+                var s = d.format(item);
+                if (s == mn[index]){
+                    $(".record-list-mn").eq(index).find("ul").append(html);
+                    _this.remove();
+                    return false;
+                }
+            });
+            _this.remove();
+        });
+        $('.order_list').remove();
+        $(".record-list-mn").each(function(){
+            if ($(this).find(".list-group-item").length > 0){
+                $(this).removeClass("hide");
+            }
+        }).eq(0).find("span.date").removeClass("hide");
+    });
+    </script>
+{% endblock %}

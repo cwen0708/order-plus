@@ -1,0 +1,162 @@
+{% extends 'layouts/console_page.html' %}
+{% set order = context[scaffolding.singular] %}
+{% import 'component/sales_action.html' as s with context -%}
+{% import 'component/sales_timeline.html' as t with context -%}
+{% block page_header %}
+    <div class="page-header">
+        <h1 class="page-title">銷售訂單詳情</h1>
+        <p class="page-description">訂單編號 {{ order.order_info_id }}</p>
+        <div class="page-header-actions">
+            <button type="button" class="btn btn-inverse btn-floating waves-effect waves-float waves-light margin-horizontal-10"
+                     data-toggle="tooltip" data-original-title="關注">
+                <i class="icon zmdi zmdi-star" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-inverse btn-floating waves-effect waves-float waves-light margin-horizontal-10"
+                     data-toggle="tooltip" data-original-title="加到連絡人">
+                <i class="icon zmdi zmdi-account-add" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-xs-12 col-md-8">
+            {% for detail in order.details() %}
+            <div class="panel panel-bordered">
+                <div class="panel-heading">
+                  <h3 class="panel-title">{{ detail.title }}</h3>
+                </div>
+                <div class="table-responsive">
+                <table class="table is-indent tablesaw table-striped table-hover" data-tablesaw-mode="stack" data-plugin="animateList" data-animate="fade"
+                       data-child="tr" data-selectable="selectable">
+                    <thead>
+                    <tr class="animation-fade"
+                        style="animation-fill-mode: backwards; animation-duration: 250ms; animation-delay: 0ms;">
+                        <th class="pre-cell"></th>
+                        <th class="cell-300">名稱</th>
+                        <th class="cell-100">規格</th>
+                        <th class="cell-100">價格</th>
+                        <th class="cell-300">數量</th>
+                        <th class="cell-100">小計</th>
+                        <th class="suf-cell"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% set sum = 0.0 %}
+                    {% for item in detail.items() %}
+                        {% set product = item.product.get() %}
+                        <tr class="animation-fade"
+                            style="animation-fill-mode: backwards; animation-duration: 250ms; animation-delay: 50ms;">
+                            <td class="pre-cell"></td>
+                            <td class="cell-300">
+                                <div class="img-product" style="background-image: url({{ product.image_url }})"></div>
+                                {{ product.title }}
+                            </td>
+                            <td class="cell-100">{{ product.spec }}</td>
+                            <td class="cell-100"><span class="price">{{ int(product.price) }}</span> 元</td>
+                            <td class="cell-300"><input type="text" class="sales_q change_check"
+                                                      data-plugin="TouchSpin"
+                                                      data-limit-1="{{ product.limit_1 }}"
+                                                      data-limit-2="{{ product.limit_2 }}" value="{{ item.quantity }}"
+                                                      data-original="{{ item.quantity }}" min="0" /></td>
+                            <td class="cell-100"><span class="price_sum total_span"></span> 元</td>
+                            <td class="suf-cell"></td>
+                        </tr>
+                    {% endfor %}
+                    <tr class="animation-fade"
+                        style="animation-fill-mode: backwards; animation-duration: 250ms; animation-delay: 50ms;">
+                        <td class="pre-cell"></td>
+                        <td class="cell-300"></td>
+                        <td class="cell-100"></td>
+                        <td class="cell-100">運費</td>
+                        <td class="cell-300">
+                            <input type="text" class="total_input change_check"
+                                                      data-plugin="TouchSpin"
+                                                      value="{{ int(detail.shipping_fee) }}"
+                                                      data-original="{{ int(detail.shipping_fee) }}" min="0" /></td>
+                            <td class="cell-100">元</td>
+                        <td class="suf-cell"></td>
+                    </tr>
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            {% endfor %}
+            <div class="widget">
+                <div class="widget-content padding-30 bg-green-600">
+                    <div class="widget-watermark darker font-size-60 margin-15">
+                        <i class="icon zmdi zmdi-money-box" aria-hidden="true"></i></div>
+                    <div class="counter counter-md counter-inverse text-left">
+                        <div class="counter-number-group">
+                            <span class="counter-number total"></span>
+                            <span class="counter-number-related text-capitalize">元</span>
+                        </div>
+                        <div class="counter-label text-capitalize">總計金額</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-md-4">
+            <ul class="timeline timeline-small">
+                <li class="timeline-item timeline-reverse">
+                    <div class="timeline-dot bg-orange-600" data-placement="right" data-toggle="tooltip" data-trigger="hover" data-original-title="接著處理"></div>
+                    <div class="timeline-content">
+                        <div class="widget widget-article widget-shadow">
+                            {{ s.order_action(order) }}
+                        </div>
+                    </div>
+                    <div style="clear: both"></div>
+                </li>
+                {{ t.timeline(order) }}
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}
+{% block page_scripts %}
+    <script type="text/javascript">
+    function check(){
+        var has_change = false;
+        $(".change_check").each(function(){
+            if ($(this).val() != $(this).data("original")){
+                has_change = true;
+            }
+        });
+        total();
+        if (has_change){
+            $(".change").show();
+            $(".non-change").hide();
+        }else{
+            $(".change").hide();
+            $(".non-change").show();
+        }
+    }
+    function total(){
+        var total = 0.0;
+        $(".total_span").each(function(){
+            total += parseFloat($(this).text());
+        });
+        $(".total_input").each(function(){
+            total += parseFloat($(this).val());
+        });
+        $(".total").text(parseInt(total));
+    }
+    $(function(){
+        $('input[data-plugin="TouchSpin"]').TouchSpin().on("touchspin.on.stopspin", function() {
+            var s = parseInt($(this).val()) * parseInt($(this).parent().parent().prev().find(".price").text());
+            $(this).parent().parent().next().find(".price_sum").text(s);
+            check();
+        }).each(function(){
+            var s = parseInt($(this).val()) * parseInt($(this).parent().parent().prev().find(".price").text());
+            $(this).parent().parent().next().find(".price_sum").text(s);
+            check();
+        });
+        $("body").addClass("app-contacts");
+        total();
+        $(".change_check").change(check);
+        $.components.init('navTabsLine', $(".timeline"));
+        OrderPlus.message.read("#message_{{- this.encode_key(order) -}}");
+    });
+    </script>
+{% endblock %}

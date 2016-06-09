@@ -1,0 +1,5 @@
+13218
+原
+    if (obj.recid != 0) ajaxOptions.type = 'PUT';
+新
+    if (obj.recid > 0) ajaxOptions.type = 'PUT';

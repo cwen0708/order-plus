@@ -1,0 +1,60 @@
+{% extends 'backend_ui_material/site.html' %}
+{% block body_class %}page-login-v2 layout-full page-dark{% endblock %}
+{% block body %}
+<div class="page animsition" data-animsition-in="fade-in" data-animsition-out="fade-out">
+    <div class="page-content">
+        <div class="page-brand-info">
+            <div class="brand">
+                <img class="brand-img" src="//static.orderplus.com.tw/img/logo.png" alt="...">
+
+                <h2 class="brand-text font-size-40">{{ backend_title }}</h2>
+            </div>
+            <p class="font-size-20"></p>
+        </div>
+        <div class="page-login-main">
+            <form>
+                <h3 class="font-size-24">請輸入後台管理帳號及密碼</h3>
+                <p>
+                <form>
+                <div class="form-group form-material">
+                    <input type="text" class="form-control " name="account" value="" id="account" />
+                    <label class="floating-label" for="code">帳號</label>
+                </div>
+                <div class="form-group form-material floating">
+                    <input type="password" class="form-control " name="password" value="" id="password" />
+                    <label class="floating-label" for="code">密碼</label>
+                </div>
+                </form>
+                <button type="button" class="btn btn-primary btn-block" id="login">註冊 / 登入</button>
+                </p>
+                <p id="msg_info" class="label label-primary" style="display: none;"></p>
+                <p id="msg_error" class="label label-danger" style="display: none;"></p>
+
+            </form>
+            <footer class="page-copyright">
+                <p>WEBSITE BY <a href="http://www.yooliang.com/">YooLiang Technology</a> </p>
+
+                <p>© 2015. All RIGHT Yooliang.</p>
+
+                <div class="social">
+                    <a class="btn btn-icon btn-round social-twitter" href="javascript:void(0)">
+                        <i class="icon bd-twitter" aria-hidden="true"></i>
+                    </a>
+                    <a class="btn btn-icon btn-round social-facebook" href="javascript:void(0)">
+                        <i class="icon bd-facebook" aria-hidden="true"></i>
+                    </a>
+                    <a class="btn btn-icon btn-round social-google-plus" href="javascript:void(0)">
+                        <i class="icon bd-google-plus" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </footer>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{%- block more_css_include %}
+    <link rel="stylesheet" href="/plugins/backend_ui_material/static/css/login-v2.min.css">
+{%- endblock -%}
+{%- block more_js_include %}
+    <script src="/plugins/backend_ui_material/static/js/login.min.js"></script>
+{%- endblock -%}

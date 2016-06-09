@@ -1,0 +1,40 @@
+{% extends 'layouts/console_page.html' %}
+{% set list = context[scaffolding.plural] %}
+{% block page_header %}{% endblock %}
+{% block content %}
+    <div class="app-projects">
+    <div class="projects-wrap">
+    <ul class="blocks blocks-100 blocks-xlg-4 blocks-md-3 blocks-sm-2 blocks-xs-2" data-plugin="animateList"
+        data-child=">li">
+        {% set n = 0 %}
+        {% for item in list %}
+        <li class="animation-scale-up"
+            style="animation-fill-mode: backwards; animation-duration: 250ms; animation-delay: 0ms;">
+            <div class="panel">
+                <figure class="overlay overlay-hover animation-hover">
+                    <div class="caption-figure" style="background-position: 50% 50%; background-size: cover; width: 100%; height: 160px; background-image: url({{ item.image_url }});"></div>
+                    <figcaption class="overlay-panel overlay-background overlay-fade text-center vertical-align">
+                        <button type="button" class="btn btn-inverse project-button waves-effect waves-light"+
+                                data-url="/console/item/detail/{{- this.encode_key(item) -}}">檢視</button>
+                    </figcaption>
+                </figure>
+                <div class="time pull-right">{{ item.spec }}</div>
+                <div class="text-truncate">{{ item.title }}</div>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    </div>
+    </div>
+{% endblock %}
+{% block panel_footer %}{{ next_page_link() }}
+  <script src="/static/js/components/animate-list.min.js"></script>
+{% endblock %}
+
+{% block page_scripts %}
+    <script type="text/javascript">
+    $(function(){
+        OrderPlus.moment();
+    });
+    </script>
+{% endblock %}

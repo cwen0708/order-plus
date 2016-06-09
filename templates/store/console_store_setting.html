@@ -1,0 +1,24 @@
+{% extends 'layouts/console_page.html' %}
+{% set data = context[scaffolding.plural] %}
+{% block page_title %}商家設定{% endblock %}
+{% block content %}
+
+        <div class="panel panel-bordered">
+            <div class="panel-heading">
+              <h3 class="panel-title">流程設定</h3>
+            </div>
+
+            <div class="panel-body">
+                <div class="form-group form-material floating">
+                    <select class="form-control" name="store_path_type">
+                        <option value="multiple">多選流程</option>
+                        <option value="single">單選流程</option>
+                    </select>
+                    <label class="floating-label">流程選擇</label>
+                </div>
+                <div class="form-group form-material col-lg-12 text-right padding-top-m">
+                    <button type="submit" class="btn btn-primary waves-effect waves-light" id="validateButton1">Submit</button>
+                </div>
+            </div>
+        </div>
+{% endblock %}

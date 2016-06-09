@@ -1,0 +1,72 @@
+{% macro order_action(order) -%}
+{%- if order.state == 0 -%}
+    <div class="panel nav-tabs-horizontal">
+        <div class="panel-heading">
+            <h6 class="panel-title">接著處理</h6>
+        </div>
+        <ul class="nav nav-tabs nav-justified nav-tabs-line" data-plugin="nav-tabs" role="tablist">
+            <li class="active" role="presentation">
+                <a data-toggle="tab" href="#exampleTopHome" aria-controls="exampleTopHome" role="tab" aria-expanded="false">
+                    <i class="icon zmdi zmdi-truck" aria-hidden="true"></i>貨到付款</a></li>
+            <li role="presentation" class="">
+                <a data-toggle="tab" href="#exampleTopComponents" aria-controls="exampleTopComponents" role="tab" aria-expanded="false">
+                    <i class="icon zmdi zmdi-money-box" aria-hidden="true"></i>等待付款</a></li>
+            <li role="presentation" class="">
+                <a data-toggle="tab" href="#exampleTopCss" aria-controls="exampleTopCss" role="tab" aria-expanded="false">
+                    <i class="icon zmdi zmdi-assignment-check" aria-hidden="true"></i>直接寄送</a></li>
+
+        </ul>
+        <div class="panel-body">
+            <div class="tab-content">
+                <div class="tab-pane fade active in" id="exampleTopHome" role="tabpanel">
+                    <div class="non-change">
+                        當您需要貨到付款時，可以使用此流程
+                        <p class="float_right">
+                            <button class="btn btn-block btn-primary waves-effect waves-light">準備寄送</button>
+                        </p>
+                    </div>
+                    <div class="change">
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            商品數量或運費有所變更，您需要請對方先確認此變動
+                        </div>
+                        當您需要貨到付款時，可以使用此流程
+                        <p class="float_right">
+                            <button class="btn btn-block btn-primary waves-effect waves-light">確認後，再貨到付款</button>
+                        </p>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="exampleTopComponents" role="tabpanel">
+                    <div class="non-change">
+                        當您需要對方先付款再寄送商品時，使用此流程
+                        <p class="float_right">
+                            <button class="btn btn-block btn-primary waves-effect waves-light">等待付款</button>
+                        </p>
+                    </div>
+                    <div class="change">
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            商品數量或運費有所變更，您需要請對方先確認此變動
+                        </div>
+                        當您需要對方先付款再寄送商品時，使用此流程
+                        <p class="float_right">
+                            <button class="btn btn-block btn-primary waves-effect waves-light">等待確認及付款</button>
+                        </p>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="exampleTopCss" role="tabpanel">
+                    <div class="change">
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            商品數量或運費有所變更，若有缺貨等事宜，可用下方的事件記錄與對方連繫
+                        </div>
+                    </div>
+                    <div>
+                        當您確認對方已付款、或是想直接寄送商品時，可以使用此流程
+                        <p class="float_right">
+                            <button class="btn btn-block btn-primary waves-effect waves-light">準備寄送</button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{%- endif -%}
+{%- endmacro %}

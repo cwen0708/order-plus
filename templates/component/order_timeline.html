@@ -1,0 +1,19 @@
+{% macro timeline(order) -%}
+    {% for item in order.messages() %}
+        <li class="timeline-item">
+            <div class="timeline-dot {% if item.message_type == 'purchaser' or item.message_type == 'receiver' %}bg-orange-600{% endif %}" data-placement="right" data-toggle="tooltip" data-trigger="hover" data-original-title="{{ str(order.modified).split(".")[0] }}"></div>
+            <div class="timeline-content">
+                <div class="panel">
+                <div class="panel-heading"><h6 class="panel-title moment" data-moment-func="fromNow">{{ order.created }}</h6></div>
+                <div class="panel-body">
+                {% if item.user_a == account_key %}
+                    {{ item.user_a_text }}
+                {% else %}
+                    {{ item.user_b_text }}
+                {% endif %}
+                </div>
+                </div>
+            </div>
+        </li>
+    {% endfor %}
+{%- endmacro %}

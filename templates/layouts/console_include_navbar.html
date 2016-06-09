@@ -1,0 +1,100 @@
+<!-- 主導覽列 -->
+<div class="collapse navbar-collapse navbar-collapse-toolbar" id="site-navbar-collapse">
+    <div class="row row-for-search no-space">
+        <div class="col-sm-6 col-md-6 search-fix-1">
+            <div class="form-group hidden-xs hidden-sm search-fix-3">
+                <div class="input-search">
+                    <i class="input-search-icon zmdi zmdi-search" aria-hidden="true"></i>
+                    <input type="text" class="form-control search-fix-4" name="site-search" placeholder="Search...">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-md-6 search-fix-1 search-fix-2" style="">
+            <!-- 右上選單 -->
+            <ul class="nav navbar-toolbar navbar-right navbar-toolbar-right">
+                <li class="hidden-float hidden-md hidden-lg">
+                    <a class="icon zmdi zmdi-search" data-toggle="collapse" href="#"
+                       data-target="#site-navbar-search"
+                       role="button">
+                        <span class="sr-only">Toggle Search</span>
+                    </a>
+                </li>
+                <li id="toggleFullscreen">
+                    <a class="icon icon-fullscreen fold-show" href="javascript: void(0);" data-toggle="fullscreen" data-original-title="全螢幕" aria-expanded="false"
+                       data-animation="scale-up" role="button">
+                        <span class="sr-only">Toggle fullscreen</span>
+                    </a>
+                </li>
+                <li class="dropdown">
+                    <a data-toggle="dropdown" href="javascript:void(0)" title="Notifications" aria-expanded="false"
+                       data-animation="scale-up" role="button">
+                        <i class="icon zmdi zmdi-notifications" aria-hidden="true"></i>
+                        <span class="badge badge-info up">0</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-right dropdown-menu-media Notifications" role="menu">
+                        <li class="dropdown-menu-header" role="presentation">
+                            <h5>通知訊息</h5>
+                        </li>
+                        <li class="list-group" role="presentation">
+                            <div data-role="container">
+                            <div data-role="content" id="notifications-content"></div>
+                            </div>
+                        </li>
+                        <li class="dropdown-menu-footer" role="presentation">
+                            <a class="dropdown-menu-footer-btn" href="javascript:void(0)" role="button">
+                                <i class="icon zmdi zmdi-settings" aria-hidden="true"></i>
+                            </a>
+                            <a href="javascript:void(0)" role="menuitem"><br />
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="navbar-avatar dropdown-toggle padding-0" data-toggle="dropdown" href="javascript:void(0)" aria-expanded="false"
+                       data-animation="scale-up" role="button">
+                        <div class="nav-profile-img" style="background-image: url(//static.orderplus.com.tw/img/portraits/15.jpg)"></div>
+                    </a>
+                    <ul class="dropdown-menu profile-menu" role="menu">
+                        <li role="presentation">
+                            <a href="/console/user_info" role="menuitem">
+                                <i class="icon zmdi zmdi-account" aria-hidden="true"></i> 個人資訊</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="javascript:void(0)" role="menuitem">
+                                <i class="icon zmdi zmdi-card" aria-hidden="true"></i> 帳單</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="javascript: void(0)" role="menuitem" class="ui_change_to_next_color">
+                                <i class="icon zmdi zmdi-format-color-fill" aria-hidden="true"></i> 換顏色</a>
+                        </li>
+                        <li class="divider" role="presentation"></li>
+                        <li role="presentation">
+                            <a href="/console/user_info/setting" role="menuitem">
+                                <i class="icon zmdi zmdi-settings" aria-hidden="true"></i> 設定</a>
+                        </li>
+                        <li class="divider" role="presentation"></li>
+                        <li role="presentation">
+                            <a href="/console/logout" role="menuitem" id="logout">
+                                <i class="icon zmdi zmdi-power" aria-hidden="true"></i> 登出</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- 搜尋列 -->
+<div class="collapse navbar-search-overlap" id="site-navbar-search">
+    <form role="search">
+        <div class="form-group">
+            <div class="input-search">
+                <i class="input-search-icon zmdi zmdi-search" aria-hidden="true"></i>
+                <input type="text" class="form-control" name="site-search" placeholder="Search...">
+                <button type="button" class="input-search-close icon zmdi zmdi-close"
+                        data-target="#site-navbar-search"
+                        data-toggle="collapse" aria-label="Close"></button>
+            </div>
+        </div>
+    </form>
+</div>

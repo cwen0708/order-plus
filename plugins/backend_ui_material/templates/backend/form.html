@@ -1,0 +1,38 @@
+{% import 'backend/macros.html' as s with context %}
+{% extends s.layout() %}
+
+{% block panel_header %}
+<form method="POST" action="{{scaffolding.form_action|default(this.uri(_pass_all=True), True)}}" class="form" enctype="{{scaffolding.form_encoding|default('application/x-www-form-urlencoded', True)}}" role="form">
+{%- endblock -%}
+
+{% block panel_body %}
+    {% block form_tag %}{% endblock %}
+    {{this.events.before_form_fields()}}
+    {% block form_fields %}
+        {% for field in form %}
+            {% if not field.name in scaffolding.excluded_form_fields %}
+                {{ s.form_field(form, field) }}
+            {% endif %}
+        {% endfor %}
+    {% endblock %}
+    {{this.events.after_form_fields()}}
+{% endblock %}
+
+{% block panel_footer %}
+    {% block form_actions %}
+        {% block submit_button %}
+            <button class="btn btn-primary" type="submit">
+                {% block submit_text %}Submit{% endblock %}
+            </button>
+        {% endblock %}
+        {% block cancel_button %}
+            {% if uri_exists(action='list') %}
+            <a class="btn btn-default" href="{{uri(action='list')}}">
+                {% block cancel_text %}Cancel{% endblock %}
+            </a>
+            {% endif %}
+        {% endblock %}
+    {% endblock %}
+    </form>
+{% endblock %}
+

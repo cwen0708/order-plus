@@ -1,0 +1,85 @@
+{% extends 'layouts/console_page.html' %}
+{% set data = context[scaffolding.plural] %}
+
+{% macro process_box(item) -%}
+    <li class="dd-item dd3-item" data-id="{{ item.id }}">
+        <div class="dd-handle dd3-handle">Drag</div><div class="dd3-content {{ item.bg }}">{{ item.title }}</div>
+        {% if item.children %}
+        <ol class="dd-list">
+            {% for child in item.children %}
+                {{ process_box(child) }}
+            {% endfor %}
+        </ol>
+        {% endif %}
+    </li>
+{%- endmacro %}
+
+{% block page_title %}訂單流程{% endblock %}
+{% block content %}
+
+    <div class="row">
+        <div class="col-xs-12 col-md-8">
+            <div class="panel panel-bordered">
+                <div class="panel-heading">
+                  <h3 class="panel-title">流程規劃 - {{ page_name }}</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="dd" data-plugin="nestable" id="process_box" style="min-height: 50px;">
+                        {% if has_record %}
+                            <ol class="dd-list">
+                                {% for item in record %}
+                                    {{ process_box(item) }}
+                                {% endfor %}
+                            </ol>
+                        {% else %}
+                            <div class="dd-empty"></div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6 col-md-4">
+            <div class="panel panel-bordered">
+                <div class="panel-heading">
+                  <h3 class="panel-title">流程工具箱</h3>
+                </div>
+                <div class="panel-body">
+
+                    <div class="dd" data-plugin="nestable" id="tool_box">
+                        <ol class="dd-list">
+                            {% for item in toolbox %}
+                                {{ process_box(item) }}
+                            {% endfor %}
+                        </ol>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <textarea id="process_box_output" rows="6" style="margin: 30px; width: calc(100% - 60px)">{{ source }}</textarea>
+{% endblock %}
+{% block page_scripts %}
+    <script type="text/javascript">
+    var dd_updateOutput = function(e) {
+        var list   = e.length ? e : $(e.target),
+            output = list.data('output');
+        if (window.JSON) {
+            output.val(window.JSON.stringify(list.nestable('serialize')));//, null, 2));
+        } else {
+            output.val('JSON browser support required for this demo.');
+        }
+    };
+    $(function(){
+        $.components.init('nestable');
+        $(".dd").each(function(){
+            dd_updateOutput($(this).data('output', $('#' + $(this).attr("id") + '_output')));
+            $(this).on('change', dd_updateOutput);
+        });
+        setInterval(function(){
+            $("#process_box").change();
+        }, 1000);
+    });
+    </script>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'layouts/console_page.html' %}
+{% set data = context[scaffolding.plural] %}
+
+{% block page_title %}訂單流程{% endblock %}
+{% block content %}
+    <ul id="record-list">
+        <li class="record-list-mn">
+            <span>OrderPlus 提供最具彈性的訂單流程，讓您可以依照您實際上的業務需求進行調整，<br />在此之前您可能需要先了解一下如何操作<br />
+                <a href="/console/store/process/help" style="margin: 10px 0;display: inline-block;">訂單流程編輯說明</a><br /><br />
+            </span>
+            <div class="panel">
+                <ul class="list-group list-group-bordered">
+                    {% for item in menus %}
+                    <li class="list-group-item"><a href="/console/store/process/edit/{{ item.id }}">{{ item.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </li>
+    </ul>
+
+{% endblock %}
+{% block page_scripts %}
+{% endblock %}

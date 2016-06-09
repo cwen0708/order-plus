@@ -1,0 +1,21 @@
+{% import 'backend/macros.html' as s with context %}
+
+{% block layout_content %}
+{% set list = context[scaffolding.plural] %}
+<div class="records" data-cursor="{{ this.request.params.get("cursor") }}">
+    <h1>{{ s.scaffold_title(this.route.action) }} <a href="{{s.action_uri('add') }}" title="新增" class="btn-add-record"><i class="glyphicon glyphicon-pencil"></i></a>{{s.next_page_link()}}</h1>
+    <ul class="records-list">
+        {%- set n = 0 -%}
+        {% for item in list %}
+            {%- set n = n + 1 -%}
+            <li data-edit-url="{{s.edit_url(item, 'edit')}}"
+                data-delete-url="{{s.edit_url(item, 'delete')}}"
+                data-sort-up-url="{{s.edit_url(item, 'sort_up')}}"
+                data-sort-down-url="{{s.edit_url(item, 'sort_down')}}"
+                data-title="{{ item["title"] }}"
+                data-desc="{{ item["modified"] }}">
+                <div class="list-item"><h3>{{ item["title"] }}</h3><p><small>{{ item["modified"] }}</small></p></div></li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

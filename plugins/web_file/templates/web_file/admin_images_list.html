@@ -1,0 +1,7 @@
+    {%- set n = 0 -%}
+    {% for item in list %}
+        {%- set n = n + 1 -%}
+        <div class='images-selector-box' style='background-image: url("/userfile/{{ item["file"] }}.jpg");' data-link="/userfile/{{ item["file"] }}.jpg">
+            <div><small>{{ item["modified"] }}</small></div>
+        </div>
+    {% endfor %}

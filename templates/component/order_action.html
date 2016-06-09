@@ -1,0 +1,3 @@
+{% macro order_action(order) -%}
+    {% include '/component/buyer/' + order.path_next + '.html' %}
+{%- endmacro %}

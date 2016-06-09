@@ -1,0 +1,63 @@
+{% extends 'layouts/site.html' %}
+{% block more_js_include %}<!--<script src="//static.orderplus.com.tw/js/login.js?r={{ framework.app_version }}"></script>-->{% endblock %}
+{% block body_class %}page-login-v2 layout-full page-dark{% endblock %}
+{% block body %}
+<div class="page animsition" data-animsition-in="fade-in" data-animsition-out="fade-out">
+    <div class="page-content">
+        <div class="page-brand-info">
+            <div class="brand">
+                <img class="brand-img" src="https://static.orderplus.com.tw/img/logo.png" alt="...">
+
+                <h2 class="brand-text font-size-40">Order Plus 訂購+</h2>
+            </div>
+            <p class="font-size-20"></p>
+        </div>
+        <div class="page-login-main">
+            <form>
+                <h3 class="font-size-24">快速註冊 及 登入</h3>
+                <p>
+                    請將下列驗証碼，以手機簡訊發送到 <span>指定門號</span> ，<br/>
+                    然後點擊「註冊 / 登入」按鈕即可。<br/><br/>
+                </p>
+                <p>
+                <div class="form-group form-material">
+                    <label class="control-label" for="select">指定門號</label>
+                    <select class="form-control" id="select">
+                        <option>0977003072 (亞太電信)</option>
+                    </select>
+                </div>
+                <div class="form-group form-material floating">
+                    <label class="control-label" for="code">驗証碼</label>
+                    <input type="text" class="form-control " name="code" value="{{ mobile_code }}" id="code" readonly/>
+                </div>
+                <a id="quick_sms" type="button" class="btn btn-primary btn-block" style="margin-left: 0">發送簡訊</a>
+                <p>
+                    (目前僅提供台灣用戶使用)
+                    <span class="token" style="display: none;">{{ token }}</span>
+                    <br />
+                    <br />
+                    <span id="span_status">狀態</span>
+                </p>
+                <button type="button" class="btn btn-primary btn-block" id="login">註冊 / 登入</button>
+                <p id="msg_info" class="label label-primary" style="display: none;"></p>
+                <p id="msg_error" class="label label-danger" style="display: none;"></p>
+            </form>
+            <footer class="page-copyright">
+                <p>© 2015. All RIGHT RESERVED.</p>
+
+                <div class="social">
+                    <a class="btn btn-icon btn-round social-twitter" href="javascript:void(0)">
+                        <i class="icon bd-twitter" aria-hidden="true"></i>
+                    </a>
+                    <a class="btn btn-icon btn-round social-facebook" href="javascript:void(0)">
+                        <i class="icon bd-facebook" aria-hidden="true"></i>
+                    </a>
+                    <a class="btn btn-icon btn-round social-google-plus" href="javascript:void(0)">
+                        <i class="icon bd-google-plus" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </footer>
+        </div>
+    </div>
+</div>
+{% endblock %}

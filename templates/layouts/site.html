@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html class="no-js css-menubar" lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta name="google-site-verification" content="n_1Xq6K3CJcKtU3HeUTUUDX6aTLbVADv3WzFyFM_rJE" />
+    <meta name="description" content="bootstrap admin template">
+    <meta name="author" content="">
+
+  <link rel="manifest" href="/manifest-2.json">
+
+    <!-- Add to home screen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="OrderPlus">
+    <link rel="apple-touch-icon" href="//static.orderplus.com.tw/icons/touch-icon-iphone.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="//static.orderplus.com.tw/icons/touch-icon-ipad.png" /> 
+    <link rel="apple-touch-icon" sizes="120x120" href="//static.orderplus.com.tw/icons/touch-icon-iphone-retina.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="//static.orderplus.com.tw/icons/touch-icon-ipad-retina.png" />
+
+    <meta name="msapplication-TileImage" content="//static.orderplus.com.tw//icons/icon-144x144-20150604.png">
+    <meta name="msapplication-TileColor" content="#2F3BA2">
+    <title>OrderPlus 訂購+</title>
+{% include 'layouts/site_include_css.html' -%}
+{% block more_css_include %}{%- endblock -%}
+</head>
+<body class="{%- block body_class -%}{%- endblock -%}" data-autoMenubar="false">
+{% block body %}{%- endblock %}
+{% include 'layouts/site_include_js.html' %}
+{%- block more_js_include -%}{%- endblock -%}
+<!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-5DC8B6"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5DC8B6');</script>
+<!-- End Google Tag Manager -->
+</body>
+</html>

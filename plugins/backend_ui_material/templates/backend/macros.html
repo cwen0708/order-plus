@@ -1,0 +1,156 @@
+{% import 'backend/pagination.html' as pagination with context %}
+
+{#
+    Chooses the appropriate layout for the current prefix.
+#}
+{% macro layout() -%}backend_ui_material/backend_layout.html{%- endmacro %}
+
+
+{% macro scaffold_title(action) -%}
+    {%- if page_title -%}
+        {{ page_title }}
+    {%- else -%}
+        {%- if scaffolding -%}
+            {%- if action == 'list' -%}{{ scaffolding.title.list }}{%- endif -%}
+            {%- if action == 'add' -%}{{ scaffolding.title.add }}{%- endif -%}
+            {%- if action == 'view' -%}{{ scaffolding.title.view }}{%- endif -%}
+            {%- if action == 'edit' -%}{{ scaffolding.title.edit }}{%- endif -%}
+        {%- else -%}
+            {{ inflector.humanize(this.route.action) }}
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro %}
+{#
+    Pretty print values. This is useful for printing model
+    data. Sequences are printed as unordered lists, dates
+    are localized.
+#}
+{% macro print_value(value) -%}
+    {{format_value(value)}}
+{%- endmacro %}
+
+{% set print = print_value %}
+
+
+{#
+    Includes {{this.name}}/{{template}} and falls back to
+    scaffolding/{{template}}
+#}
+{% macro override_include(template) -%}
+{% include [this.name+'/'+template,'backend/'+template] %}
+{%- endmacro %}
+
+
+{#
+    Creates a uri for the current controller with a given action.
+#}
+{% macro action_uri(action) -%}
+    {{ this.uri(action=action,*varargs,**kwargs) }}
+{%- endmacro %}
+
+
+{#
+    Inserts pagination logic
+#}
+{% macro next_page_link() -%}
+    {{pagination.next_page_link(*args,**kwargs)}}
+{%- endmacro %}
+
+
+{#
+    Generates a single action button for an item
+#}
+{% macro action_button(item, action, icon, btn, class=None, confirm=False) -%}
+    {% if this.uri_exists(action=action) %}
+        <a href='{{ action_uri(action,key=this.encode_key(item)) }}'
+            class='btn btn-sm zmdi-hc-2x {{btn}} {{class}}'
+            rel="tooltip"
+            title='{{inflector.titleize(action)}}'
+            {% if confirm %}
+            onclick='javascript: return confirm("Are you sure you want to delete this item?");'
+            {% endif %}>
+            <i class="zmdi {{icon}} icon-white"></i>
+        </a>
+    {% endif %}
+{%- endmacro %}
+
+
+{% macro edit_url(item, action) -%}
+    {% if this.uri_exists(action=action) %}
+        {{- action_uri(action,key=this.encode_key(item)) -}}
+    {% endif %}
+{%- endmacro %}
+
+
+{#
+    Generates the standard suite of action buttons for an item (view, edit, delete)
+#}
+{% macro action_buttons(item, class=None) -%}
+    {% set class = class or ''%}
+    {{action_button(item, 'view', 'zmdi-search', '', class)}}
+    {{action_button(item, 'edit', 'zmdi-edit', '', class)}}
+    {{action_button(item, 'delete', 'zmdi-delete', '', class, True)}}
+    {{action_button(item, 'sort_up', 'zmdi-caret-up', '', class)}}
+    {{action_button(item, 'sort_down', 'zmdi-caret-down', '', class)}}
+{%- endmacro %}
+
+{#
+    Link for navigation
+#}
+{% macro nav_link(action, text) -%}
+    {% if uri_exists(action=action) %}
+        <a href="{{uri(action=action)}}" class="btn btn-sm btn-primary {% if on_uri(action=action) %}bg-red-400{% endif %} btn-round waves-effect waves-light waves-round">
+            <span class="text">{{text}}</span>
+        </a>
+    {% endif %}
+{%- endmacro %}
+
+{% macro form_field(form, field, container_element='div') -%}
+    {% if field.short_name in form.disabled_fields %}
+        {% set _ = kwargs.setdefault('readonly', true) %}
+    {% endif %}
+    {% set _ = kwargs.setdefault('tabindex', 0) %}
+    {% if field.type == 'HiddenField' or field.widget.input_type == 'hidden' %}
+        {{ field(**kwargs) }}
+    {% else %}
+        {% set css_classes = [kwargs.pop('class','')] %}
+        {% set parent_css_classes = [] %}
+
+        {% if field.widget.__class__.__name__ in ('TextInput', 'Select', 'Text', 'PasswordInput', 'FileInput', 'TextArea', 'EditorTextProperty') %}
+        {% set _ = css_classes.append('form-control') %}
+        {% endif %}
+        {% if field.widget.__class__.__name__ in ('CheckboxInput') %}
+        {% set _ = parent_css_classes.append('checkbox-custom') %}
+        {% endif %}
+
+        {% set _ = css_classes.append('field-type-' + inflector.dasherize(inflector.underscore(field.__class__.__name__))) %}
+
+        {% for flag_name, flag_value in field.flags.__dict__.items() %}
+            {% if flag_value %}
+                {% set _ = css_classes.append(' flag_' + flag_name + '_true') %}
+            {% else %}
+                {% set _ = css_classes.append(' flag_' + flag_name + '_false') %}
+            {% endif %}
+        {% endfor %}
+
+        {% set css_class = ' '.join(css_classes) %}
+        {% set parent_css_class = ' '.join(parent_css_classes) %}
+
+        <{{container_element}} class='form-group form-material {% if field.errors %}has-error{% endif %}'>
+            <label class="col-sm-3 control-label">{{ field.label() }}</label>
+            <{{container_element}} class='col-sm-9 {{ parent_css_class }}'>
+                 {{ field(class=css_class, **kwargs) }}
+                <p class="help-block">
+                    {% for error in field.errors %}
+                        {{ error|e }}<br/>
+                    {% endfor %}
+                </p>
+                {% if field.description %}
+                    <p class='help-block'>
+                        {{field.description}}
+                    </p>
+                {% endif %}
+            </{{container_element}}>
+        </{{container_element}}>
+    {% endif %}
+{%- endmacro %}

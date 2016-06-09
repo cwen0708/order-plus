@@ -116,6 +116,9 @@ class MobileKeyModel(BasicModel):
         # 若上列2項皆不存在，則建立新的
         if ms is None:
             ms = cls.create(controller)
+        # 延長存續時間
+        ms.sort = time.time()
+        ms.put()
         controller.session["client_id"] = ms.client_id
         controller.context["mobile_code"] = ms.code
         controller.context["token"] = crete_channel_token(ms.client_id)

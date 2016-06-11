@@ -96,6 +96,11 @@ class MobileKeyModel(BasicModel):
         return cls.query(cls.code == code).get()
 
     @classmethod
+    def get_by_mobile(cls, mobile):
+        """ 依手機取得 Key """
+        return cls.query(cls.mobile == mobile).get()
+
+    @classmethod
     def get_by_client_id(cls, client_id, user_agent):
         """ 取得特定客戶端 Key """
         return cls.query(cls.client_id == client_id, cls.user_agent == user_agent).get()
@@ -110,6 +115,7 @@ class MobileKeyModel(BasicModel):
             ms = cls.get_by_client_id(controller.params.get_string("client_id"), controller.request.environ.get('HTTP_USER_AGENT'))
 
             # 用驗証碼檢查
+            # 正向驗証使用
             if "mobile_code" in controller.session and ms is None:
                 ms = cls.get_by_code(controller.session["mobile_code"])
 
@@ -127,10 +133,12 @@ class MobileKeyModel(BasicModel):
 
     @classmethod
     def login(cls, mobile, code):
+        # 檢查手機格式
         ms = cls.get_by_code(code)
         if mobile.startswith("09"):
             mobile = "+886" + mobile[1:]
         if ms:
+            # 如果還沒過期
             if int(timeout - (time.time() - ms.sort)) >= 0:
                 ms.mobile = mobile
                 rv = {
@@ -139,10 +147,17 @@ class MobileKeyModel(BasicModel):
                     "client": ms.client_id,
                     "mobile": mobile
                 }
+                # 主動式登入 - 廣播
                 send_message_to_mobile(mobile, rv)
                 send_message_to_client(ms.client_id, rv)
                 ms.put()
                 return ms
+
+    def is_login(self):
+        if self.code != u"" and self.client_id != u"" and self.mobile != u"":
+            return True
+        else:
+            return False
 
 
 class MobileKey(Controller):
@@ -179,6 +194,7 @@ class MobileKey(Controller):
 
     @route_with("/remote/channel_sign_in")
     def channel_sing_in(self):
+        # 被動式登入
         self.meta.change_view("jsonp")
         # 反向驗証使用
         if "mobile" in self.session:
@@ -228,17 +244,17 @@ class MobileKey(Controller):
             "token": self.context["token"],
             "client": ms.client_id,
         }
-        if "mobile" in self.session:
-            if self.session["mobile"] is not None:
-                m = get_mobile(self.session["mobile"])
-                if m is None:
-                    return
-                self.context["data"] = {
-                    "token": self.context["token"],
-                    "is_login": True,
-                    "client": ms.client_id,
-                    "mobile": self.session["mobile"]
-                }
+        m = get_mobile(ms.mobile)
+        if m is None:
+            return
+        if ms.is_login():
+            self.session["mobile"] = ms.mobile
+            self.context["data"] = {
+                "token": self.context["token"],
+                "is_login": True,
+                "client": ms.client_id,
+                "mobile": self.session["mobile"]
+            }
 
     @route_with('/remote/open')
     @add_authorizations(auth.require_admin)

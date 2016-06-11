@@ -3,21 +3,35 @@
 
 {% block page_title %}訂單流程{% endblock %}
 {% block content %}
-    <ul id="record-list">
-        <li class="record-list-mn">
-            <span>OrderPlus 提供最具彈性的訂單流程，讓您可以依照您實際上的業務需求進行調整，<br />在此之前您可能需要先了解一下如何操作<br />
-                <a href="/console/store/process/help" style="margin: 10px 0;display: inline-block;">訂單流程編輯說明</a><br /><br />
-            </span>
-            <div class="panel">
-                <ul class="list-group list-group-bordered">
-                    {% for item in menus %}
-                    <li class="list-group-item"><a href="/console/store/process/edit/{{ item.id }}">{{ item.title }}</a></li>
-                    {% endfor %}
-                </ul>
+    <span>OrderPlus 提供最具彈性的訂單流程，讓您可以依照您實際上的業務需求進行調整，<br/>在此之前您可能需要先了解一下如何操作<br/>
+        <a href="/console/store/process/help"
+           style="margin: 10px 0;display: inline-block;">訂單流程編輯說明</a><br/><br/>
+    </span>
+    <ul class="blocks-xs-100 blocks-md-2 blocks-xlg-3">
+    {% for item in menus %}
+        <li>
+        <div class="panel panel-bordered">
+            <div class="panel-heading">
+              <h3 class="panel-title"><a href="/console/store/process/edit/{{ item.id }}" style="color: #3949ab;">{{ item.title }}</a></h3>
             </div>
+            <div class="panel-body">
+                <div style="min-height: 120px;">
+                <p>{{ item.desc }}</p>
+                <ol class="breadcrumb breadcrumb-arrow">
+                    {% for subitem in item.path %}
+                        {% if subitem.can_edit %}
+                        <li><a href="/console/store/process/edit/{{ subitem.id }}">{{ subitem.title }}</a></li>
+                        {% else %}
+                        <li><span>{{ subitem.title }}</span></li>
+                        {% endif %}
+                    {% endfor %}
+                </ol>
+                </div>
+            </div>
+        </div>
         </li>
+    {% endfor %}
     </ul>
-
 {% endblock %}
 {% block page_scripts %}
 {% endblock %}

@@ -1,8 +1,8 @@
 {% extends 'layouts/site.html' %}
 {%- block body_class -%}site-navbar-small site-menubar-unfold site-menubar-keep console hide{%- endblock -%}
 {%- block body -%}
-    <div class="navbar-bg {{ bg_color }}" data-account="{{- this.encode_key(account) -}}"
-         data-store="{{- this.encode_key(store) -}}" data-timezone="8" data-color="{{ bg_color }}" ></div>
+    <div class="navbar-bg bg-blue-800" data-account="{{- this.encode_key(account) -}}"
+         data-store="{{- this.encode_key(store) -}}" data-timezone="8" data-color="bg-blue-800" ></div>
     <nav class="site-navbar navbar navbar-default navbar-fixed-top navbar-mega" role="navigation">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle hamburger hamburger-close navbar-toggle-left hided"
@@ -34,8 +34,4 @@
     <div class="page animsition" id="page">
         {%- block content -%}{%- endblock -%}
     </div>
-    <footer class="site-footer navbar-fixed-bottom hidden-xs">
-        <div class="site-footer-legal"></div>
-        <div class="site-footer-right">© 2015 <a href="https://www.orderplus.com.tw">OrderPlus</a></div>
-    </footer>
 {%- endblock -%}

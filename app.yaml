@@ -23,7 +23,11 @@ handlers:
   upload: plugins/(.*?)/static/(.*)
   secure: always
 
-- url: /manifest-2.json
+- url: /cache.manifest
+  static_files: static/cache.manifest
+  upload: static/cache.manifest
+
+- url: /manifest-3.json
   static_files: static/manifest.json
   upload: static/manifest.json
 
@@ -92,6 +96,8 @@ libraries:
 - name: pycrypto
   version: latest
 - name: lxml
+  version: latest
+- name: ssl
   version: latest
 
 skip_files:

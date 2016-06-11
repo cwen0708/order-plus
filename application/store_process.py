@@ -89,21 +89,53 @@ class StoreProcess(Controller):
             "process_auto_lock_order_cancel": u"買家停用消取訂單流程",
             "process_auto_lock_return_goods": u"買家停用退貨流程",
         }
+        desc = {
+            "process_main": u"每筆訂單的起始流程，由此流程決定訂單分發之哪一個子流程",
+            "process_order_check": u"與買家進行訂單的數量、金額、運費等項目之確認",
+            "process_payment": u"向買家進行收款",
+            "process_pre_order": u"若為團購項目，則轉至此流程",
+            "process_send_goods": u"貨品寄送",
+            "process_order_end": u"訂單結束",
+            "process_order_change": u"訂單修改",
+            "process_order_cancel": u"訂單取消",
+            "process_return_goods": u"退貨處理",
+            "process_refund": u"金流退款",
+            "process_seller_check": u"賣家確認訂單",
+            "process_buyer_check": u"買家確認訂單",
+        }
 
     def get_name(self, process):
         return self.meta.process_names[process]
 
     def add_name(self, process):
         process_names = self.meta.process_names
+        desc = self.meta.desc
         for item in process:
             item["title"] = process_names[item["id"]]
+            if item["id"] in desc:
+                item["desc"] = desc[item["id"]]
+            else:
+                item["desc"] = u""
+            if item["id"] in process_collection:
+                item["can_edit"] = True
+            else:
+                item["can_edit"] = False
+
         return process
 
     @route_with("/console/store/process")
     def index(self):
+        store = self.Util.decode_key(self.session["store"]).get()
         menu = []
         for item in process_collection:
-            menu.append({"id": item})
+            try:
+                record_list = json.loads(getattr(store, item))
+            except:
+                record_list = []
+            menu.append({
+                "id": item,
+                "path": self.add_name(record_list)
+            })
         self.context["menus"] = self.add_name(menu)
 
     @route_with("/console/store/process/edit/<target>")
@@ -125,107 +157,70 @@ class StoreProcess(Controller):
             "process_payment": [
                 {"id": "process_seller_check"},
             ],
+            "process_pre_order": [
+                {"id": "process_seller_check"},
+            ],
+            "process_send_goods": [
+                {"id": "process_seller_check"},
+            ],
+            "process_order_end": [
+                {"id": "process_seller_check"},
+            ],
+            "process_order_change": [
+                {"id": "process_seller_check"},
+            ],
+            "process_order_cancel": [
+                {"id": "process_seller_check"},
+            ],
+            "process_return_goods": [
+                {"id": "process_seller_check"},
+            ],
+            "process_refund": [
+                {"id": "process_seller_check"},
+            ],
+            "general": [
+                {"id": "process_seller_check"},
+            ]
         }
 
-        import logging
         store = self.Util.decode_key(self.session["store"]).get()
         record = getattr(store, target)
-        if record is None or record == u"" or record == "":
-            record_list = []
-        else:
+        try:
             record_list = json.loads(record)
+        except:
+            record_list = []
+
         if len(record_list) == 0:
             self.context["has_record"] = False
         else:
             self.context["has_record"] = True
 
+        check_list = []
+        for target_item in record_list:
+            check_list.append(target_item["id"])
+        import logging
+        tools_box = []
+        tools_temp = tools[target] + tools["general"] + record_list
+        for tools_item in tools_temp:
+            if tools_item["id"] not in check_list:
+                tools_box.append(tools_item)
+                check_list.append(tools_item["id"])
+                logging.info("%s no in list" % tools_item["id"])
+            else:
+                logging.warn("%s in list" % tools_item["id"])
+
+        self.context["page_id"] = target
         self.context["page_name"] = self.get_name(target)
         self.context["record"] = self.add_name(record_list)
-        self.context["toolbox"] = self.add_name(tools[target])
+        self.context["toolbox"] = self.add_name(tools_box)
         return scaffold.view(self, self.session["store"])
 
-    @route_with("/console/store/process/backup/<target>")
-    def process_backup(self, target):
-        process_help = {
-            "start": u"訂單開始",
-            "seller_check_order": u"等待商家確認訂單",
-            "buyer_change_order": u"等待買家確認訂單",
-            "seller_check_order_2": u"等待商家再次確認訂單",
-            "wait_buyer_pay": u"等待買家進行付款",
-            "seller_pay_with_system": u"買家使用系統的付款方式(可自動核對金額)",
-            "wait_seller_check_pay": u"等待買家確認付款",
-            "auto_seller_check_pay": u"自動-買家確認付款",
-            "end": u"每個訂單的結束",
-            "seller_cancel": u"商家取消交易",
-            "buyer_cancel": u"買家取消交易",
+    @route_with("/console/store/process/edit/<target>/save.json")
+    def process_edit_save(self, target):
+        store = self.Util.decode_key(self.session["store"]).get()
+        setattr(store, target, self.params.get_string("p"))
+        store.put()
+        self.meta.change_view("json")
+        self.context["data"] = {
+            "target": '%s' % self.params.get_string("p")
         }
-        ct = {
-            "now": "buyer_change_order",
-            "next_x": "",
-            "next_error": "",
-            "next_at_next": False
-        }
-
-        def process_helper(item, ct):
-            id = str(item["id"])
-            try:
-                if id.find("jump_") >= 0:
-                    id = id.replace("jump_", "")
-                    item["title"] = u"跳至: " + process_help[id]
-                else:
-                    item["title"] = process_help[id]
-            except:
-                item["title"] = u"未知的流程"
-            if str(item["id"]).find("if") >= 0:
-                item["bg"] = "bg-green-100"
-            elif str(item["id"]).find("wait") >= 0:
-                item["bg"] = "bg-green-100"
-            elif str(item["id"]).find("cancel") >= 0:
-                item["bg"] = "bg-red-100"
-            else:
-                item["bg"] = "bg-grey-100"
-
-            if "children" in item:
-                children = []
-                for sub in item["children"]:
-                    if ct["next_at_next"] and ct["next_x"] == "":
-                        ct["next_x"] = sub["id"]
-                    if str(sub["id"]) == ct["now"]:
-                        ct["next_at_next"] = True
-                        if "children" in sub:
-                            ct["next_error"] = sub["children"][0]["id"]
-                for sub in item["children"]:
-                    children.append(process_helper(sub, ct))
-                item["children"] = children
-            return item
-
-        record = u'''
-[{"id":"start"},{"id":"seller_check_order"},{"id":"wait_buyer_pay"},{"id":"buyer_change_order","children":[{"id":"jump_buyer_cancel"}]},{"id":"seller_check_order_2","children":[{"id":"jump_seller_cancel"}]},{"id":"seller_pay_with_system","children":[{"id":"auto_seller_check_pay"}]},{"id":"seller_cancel","children":[{"id":"end"}]},{"id":"buyer_cancel","children":[{"id":"end"}]}]
-'''
-        toolbox = []
-        for item in process_help:
-            toolbox.append({"id": item})
-        import json
-
-        record_js_data = []
-        toolbox_js_data = []
-        record_list = json.loads(record)
-        idx = 0
-        for sub in record_list:
-            if ct["next_at_next"] and ct["next_x"] == "":
-                ct["next_x"] = sub["id"]
-            if str(sub["id"]) == ct["now"]:
-                ct["next_at_next"] = True
-                if "children" in sub:
-                    ct["next_error"] = sub["children"][0]["id"]
-        for sub in record_list:
-            record_js_data.append(process_helper(sub, ct))
-        for item in toolbox:
-            toolbox_js_data.append(process_helper(item, ct))
-
-        self.context["record"] = record_js_data
-        self.context["toolbox"] = toolbox_js_data
-        self.context["source"] = record
-        from order_info import get_order_process
-        self.context["ct"] = get_order_process(record, "buyer_change_order")
-        return scaffold.view(self, self.session["store"])

@@ -2,8 +2,8 @@
 {% set data = context[scaffolding.plural] %}
 
 {% macro process_box(item) -%}
-    <li class="dd-item dd3-item" data-id="{{ item.id }}">
-        <div class="dd-handle dd3-handle">Drag</div><div class="dd3-content {{ item.bg }}">{{ item.title }}</div>
+    <li class="dd-item dd-item-with-media" data-id="{{ item.id }}">
+        <div class="dd-handle bg-grey-lg">{{ item.title }}</div><div class="dd-content">{{ item.desc }}</div>
         {% if item.children %}
         <ol class="dd-list">
             {% for child in item.children %}
@@ -16,7 +16,6 @@
 
 {% block page_title %}訂單流程{% endblock %}
 {% block content %}
-
     <div class="row">
         <div class="col-xs-12 col-md-8">
             <div class="panel panel-bordered">
@@ -36,15 +35,17 @@
                         {% endif %}
                     </div>
                 </div>
+                <div class="panel-footer">
+                    <button class="btn btn-block btn-primary waves-effect waves-light" id="save_process">儲存</button>
+                </div>
             </div>
         </div>
-        <div class="col-xs-6 col-md-4">
+        <div class="col-xs-12 col-md-4">
             <div class="panel panel-bordered">
                 <div class="panel-heading">
                   <h3 class="panel-title">流程工具箱</h3>
                 </div>
                 <div class="panel-body">
-
                     <div class="dd" data-plugin="nestable" id="tool_box">
                         <ol class="dd-list">
                             {% for item in toolbox %}
@@ -58,7 +59,7 @@
         </div>
     </div>
 
-    <textarea id="process_box_output" rows="6" style="margin: 30px; width: calc(100% - 60px)">{{ source }}</textarea>
+    <textarea id="process_box_output" rows="6" style="display: none; margin: 30px; width: calc(100% - 60px)">{{ source }}</textarea>
 {% endblock %}
 {% block page_scripts %}
     <script type="text/javascript">
@@ -76,6 +77,11 @@
         $(".dd").each(function(){
             dd_updateOutput($(this).data('output', $('#' + $(this).attr("id") + '_output')));
             $(this).on('change', dd_updateOutput);
+        });
+        $("#save_process").click(function(){
+            json("/console/store/process/edit/{{ page_id }}/save.json", "p=" + $("#process_box_output").val(), function(data){
+                console.log(data);
+            })
         });
         setInterval(function(){
             $("#process_box").change();

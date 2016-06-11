@@ -39,7 +39,7 @@ class BackendUiMaterial(Controller):
             self.context["backend_title"] = u"網站後台"
         self.context["controllers"] = controllers
         self.context["menus"] = menus
-        self.context["bg_color"] = "bg-light-blue-a400"
+        self.context["bg_color"] = "bg-blue-800"
         self.context["backend_version"] = "0.2.1"
 
     @route_with("/admin/aa")

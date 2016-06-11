@@ -25,6 +25,11 @@ settings['timezone']['local'] = 'Asia/Taipei'
 # 設定用來寄送郵件的相關設定
 settings['email'] = {}
 settings['email']['sender'] = None
+settings['email']['mailgun'] = {
+    "domain_name": u"orderplus.com.tw",
+    "default_sender": "service",
+    "api_key": u"key-4df974aaafbe668bfd9b3539d14987e3"
+}
 
 # 外掛模組
 settings['plugins'] = {}

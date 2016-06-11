@@ -166,7 +166,7 @@ class Home(Controller):
         self.context["user_name"] = m.account.get().user_name
         self.context["store"] = m.store
         self.context["account"] = m.account
-        self.context["bg_color"] = u"bg-light-blue-a400"
+        self.context["bg_color"] = u"bg-blue-800"
 
     @route_with("/console/welcome")
     @add_authorizations(require_orderplus_user)
@@ -198,3 +198,8 @@ class Home(Controller):
             'css-vision': api.css_vision,
             'channel-vision': channel.js_vision,
         }
+
+    @route_with('/ttt.html')
+    def ttt(self):
+        from monkey.core.mail import MailGun
+        return MailGun.send("cwen0708@gmail.com", u"中文標題", "<b>aaaa</b>")

@@ -1,7 +1,60 @@
 from monkey.core import settings, template
 from google.appengine.api import mail, app_identity
 import logging
+import requests
 
+
+class MailGun():
+    def __init__(self):
+        pass
+
+    @classmethod
+    def send(cls, recipient, subject, html, text=None, sender=u"", sender_name=u""):
+        """
+
+                :rtype : str
+                """
+        import httplib2
+        from urllib import urlencode
+        domain_name = settings.get("email").get("mailgun").get("domain_name")
+        api_key = settings.get("email").get("mailgun").get("api_key")
+        if sender == u"":
+            default_sender = settings.get("email").get("mailgun").get("default_sender")
+            if default_sender.find("@") < 0:
+                sender = "%s@%s" % (default_sender, domain_name)
+            else:
+                sender = default_sender
+        if sender_name != u"":
+            from_string = "%s<%s>" % (sender_name, sender)
+        else:
+            from_string = sender
+
+        http = httplib2.Http()
+        http.add_credentials('api', api_key)
+        url = 'https://api.mailgun.net/v3/{}/messages'.format(domain_name)
+        from_string = from_string.encode("utf-8")
+        subject = subject.encode("utf-8")
+        if text is None:
+            html = html.encode("utf-8")
+            data = {
+                'from': from_string,
+                'to': recipient,
+                'subject': subject,
+                'html': html
+            }
+        else:
+            text = text.encode("utf-8")
+            data = {
+                'from': from_string,
+                'to': recipient,
+                'subject': subject,
+                'text': text
+            }
+        resp, content = http.request(url, 'POST', urlencode(data))
+        logging.debug(from_string)
+        if resp.status != 200:
+            return 'Mailgun API error: {} {}'.format(resp.status, content)
+        return 'Mailgun Send Success: {} {}'.format(resp.status, content)
 
 def send(recipient, subject, body, text_body=None, sender=None, reply_to=None, **kwargs):
     """

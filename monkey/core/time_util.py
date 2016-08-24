@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import pytz
-from monkey import settings
-
+from monkey.core import settings
 
 def utc_tz():
     return pytz.timezone('UTC')
 
 
 def local_tz():
-    return pytz.timezone(settings.get('timezone')['local'])
+    s = pytz.timezone(settings.get('timezone')['local'])
+    return s
 
 
 def localize(dt, tz=None):

@@ -1,0 +1,26 @@
+{% import "backend/macros.html" as s with context %}
+{%- if scaffolding -%}
+    <div class="btn-group">
+        <a href="javascript: backToList();" class="btn backToList"><i class="fa fa-list"></i> 回列表頁 </a>
+    </div>
+    <div class="dropdown list-operations related-operations hide">
+        <a class="dropdown-toggle text-black waves-attach padding-left-no padding-right-no waves-effect"
+           data-toggle="dropdown">
+            <span style="float: right;"><i class="icon icon-lg">arrow_drop_down</i></span>
+            　相關操作　
+        </a>
+        <ul class="dropdown-menu dropdown-menu-right folder-list ">
+            {%- if route.action != 'add' -%}
+            {%- if not item %}{%- set item = context[scaffolding.singular] -%}{% endif -%}
+            {% if uri_exists_with_permission(action="view") and route.action == 'edit' and administrator_level >= item.level %}<li><a href="{{uri_action_link('view', item)}}"><i class="fa fa-angle-right"></i>  檢視此項目 </a></li>{% endif %}
+            {% if uri_exists_with_permission(action='edit') and route.action == 'view' and administrator_level >= item.level %}<li><a href="{{uri_action_link('edit', item)}}"><i class="fa fa-angle-right"></i>  編輯此項目 </a></li>{% endif %}
+            {% if uri_exists_with_permission(action='action_permissions') and administrator_level >= item.level %}<li><a href="{{uri_action_link('action_permissions', item)}}"><i class="fa fa-angle-right"></i> 修改權限 </a></li>{% endif %}
+            {%- endif -%}
+            {% for nav_item in scaffolding.navigation -%}
+            {% if uri_exists_with_permission("admin:" + scaffolding.singular + ":" + nav_item.action, item=item) %}
+            <li><a href="{{uri_action_link(nav_item.action, item)}}"><i class="fa fa-angle-right"></i> {{ nav_item.title }} </a></li>
+            {% endif %}
+            {% endfor -%}
+        </ul>
+    </div>
+{%- endif %}

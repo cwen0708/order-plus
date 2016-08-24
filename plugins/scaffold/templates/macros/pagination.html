@@ -10,7 +10,7 @@
     </li>
     {% if paging.previous_cursor is defined %}
     <li class="previous">
-        <a href="{{this.uri(_pass_all=True, cursor=paging.previous_cursor)}}" class='paging-previous-link'><i class="glyphicon glyphicon-chevron-left "></i></a>
+        <a href="{{ uri(_pass_all=True, cursor=paging.previous_cursor)}}" class='paging-previous-link'><i class="glyphicon glyphicon-chevron-left "></i></a>
     </li>
     {% else %}
     <li class="previous disabled">
@@ -19,7 +19,7 @@
     {% endif %}
     {% if paging.next_cursor %}
     <li class="next">
-        <a href="{{this.uri(_pass_all=True, cursor=paging.next_cursor)}}" class='paging-next-link'><i class="glyphicon glyphicon-chevron-right "></i></a>
+        <a href="{{ uri(_pass_all=True, cursor=paging.next_cursor)}}" class='paging-next-link'><i class="glyphicon glyphicon-chevron-right "></i></a>
     </li>
     {% else %}
     <li class="next disabled">

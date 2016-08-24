@@ -31,6 +31,8 @@ class Upload(object):
         self.__uploads = None
         self.process_uploads = False
         self.upload_actions = ('add', 'edit')
+        if not hasattr(self.controller.meta, 'upload_actions'):
+            setattr(self.controller.meta, 'upload_actions', ('add', 'edit',))
         self.cloud_storage_bucket = controller.Meta.cloud_storage_bucket if hasattr(controller.Meta, 'cloud_storage_bucket') else None
 
         if not self.cloud_storage_bucket and settings.get('upload').get('use_cloud_storage'):
@@ -41,7 +43,7 @@ class Upload(object):
         controller.events.after_dispatch += self.on_after_dispatch
 
     def on_before_startup(self, controller):
-        if controller.route.action in self.upload_actions:
+        if controller.route.action in controller.meta.upload_actions:
             self.process_uploads = True
 
     def on_scaffold_before_apply(self, controller, container, item):

@@ -1,0 +1,44 @@
+{% import "backend/macros.html" as s with context %}
+{%- if scaffolding -%}
+
+    {%- if route.action == 'add' -%}
+        {% set submit_text ="建立" %}
+        {% set submit_and_exit_text ="建立並離開" %}
+    {% else %}
+        {% set submit_text ="儲存" %}
+        {% set submit_and_exit_text ="儲存並離開" %}
+    {% endif %}
+    <div class="btn-group">
+        <a href="javascript: backToList();" class="btn btn-white backToList"><i class="icon">view_list</i> 回列表頁 </a>
+        {%- if route.action != 'view' -%}
+        <a href="javascript: save_form();" class="btn btn-white"><i class="icon">save</i> {{submit_text}}</a>
+        <a href="javascript: save_and_exit();" class="btn btn-white"><i class="icon">save</i> {{submit_and_exit_text}}</a>
+        {% endif %}
+    </div>
+
+
+    <div class="dropdown list-operations related-operations hide">
+        <a class="dropdown-toggle text-black waves-attach padding-left-no padding-right-no waves-effect"
+           data-toggle="dropdown">
+            <span style="float: right;"><i class="icon icon-lg">arrow_drop_down</i></span>
+            　相關操作　
+        </a>
+        <ul class="dropdown-menu dropdown-menu-right folder-list ">
+            {%- if route.action != 'view' -%}
+            <li><a href="javascript: save_form();"><i class="fa fa-angle-right"></i>{{submit_text}}
+                    <span class="label label-info quick-key">S</span><span class="quick-key quick-key-2">+</span><span class="label label-info quick-key">Ctrl</span></a></a></li>
+            <li><a href="javascript: save_and_exit();"><i class="fa fa-angle-right"></i>{{submit_and_exit_text}}</a></li>
+            {% endif %}
+            {%- if route.action != 'add' -%}
+            {%- if not item %}{%- set item = context[scaffolding.singular] -%}{% endif -%}
+            {% if uri_exists_with_permission(action="view") and route.action == 'edit' %}<li><a href="{{uri_action_link('view', item)}}"><i class="fa fa-angle-right"></i>  檢視此項目 </a></li>{% endif %}
+            {% if uri_exists_with_permission(action='edit') and route.action == 'view' %}<li><a href="{{uri_action_link('edit', item)}}"><i class="fa fa-angle-right"></i>  編輯此項目 </a></li>{% endif %}
+            {%- endif -%}
+            {% for nav_item in scaffolding.navigation -%}
+            {% if uri_exists_with_permission("admin:" + scaffolding.singular + ":" + nav_item.action, item=item) %}
+            <li><a href="{{uri_action_link(nav_item.action, item)}}"><i class="fa fa-angle-right"></i> {{ nav_item.title }} </a></li>
+            {% endif -%}
+            {% endfor -%}
+        </ul>
+    </div>
+{%- endif %}

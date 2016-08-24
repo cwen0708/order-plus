@@ -16,6 +16,9 @@ if not package_dir_path in sys.path:
 for filename in os.listdir(package_dir_path):
     if filename.endswith((".zip", ".egg")):
         path = os.path.join(package_dir_path, filename)
-        if not path in sys.path:
-            logging.debug('Adding zip package %s to path' % path)
-            sys.path.insert(0, path)
+        try:
+            if not path in sys.path:
+                logging.debug('Adding zip package %s to path' % path)
+                sys.path.insert(0, path)
+        except:
+            logging.error('Can not Add zip package %s ' % filename)

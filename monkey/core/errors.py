@@ -24,7 +24,9 @@ def generic_handler(code, template=None):
 
         else:
             response.content_type = 'text/html'
-            response.text = render_template(template, {'request': request, 'exception': exception})
+            response.text = render_template(template, {'request': request, 'exception': exception,
+                'code': code,
+                'is_backend': (request.path.find("/admin") == 0)})
 
     return inner
 

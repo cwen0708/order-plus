@@ -13,8 +13,8 @@ from monkey.core import scaffold
 from monkey.core import auth
 from monkey.core import events
 from monkey.core import property as Fields
+from monkey.core import datastore
 from monkey.core.ndb import Model, BasicModel, ndb
-from monkey.instance import get_instance
 from monkey.components.pagination import Pagination
 from monkey.components.search import Search
 from monkey.components.upload import Upload
@@ -44,5 +44,6 @@ __all__ = (
     'add_authorizations',
     'ndb',
     'route_menu',
-    'auth'
+    'auth',
+    'datastore'
 )

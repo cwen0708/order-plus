@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+	<meta charset="UTF-8">
+	<meta content="IE=edge" http-equiv="X-UA-Compatible">
+	<meta content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no, width=device-width" name="viewport">
+	<title>{{ backend_title }}</title>
+	<link rel="stylesheet" href="/plugins/backend_ui_material/static/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/plugins/backend_ui_material/static/css/material.css">
+	<link rel="stylesheet" href="/plugins/backend_ui_material/static/css/material.more.css?run={{ framework.app_version }}">
+	<link rel="stylesheet" href="/plugins/backend_ui_material/static/css/console.css?run={{ framework.app_version }}">
+</head>
+<body class="page-brand" data-administrator="{{ print_key(administrator) }}">
+	<header class="header header-transparent header-waterfall ui-header">
+		<ul class="nav nav-list pull-left"><li><a data-toggle="menu" href="#ui_menu"><span class="icon icon-lg">menu</span></a></li></ul>
+		<a class="header-logo {% if page_title == backend_title %}header-affix-hide{% else %}{% endif %} margin-left-no margin-right-no gf-title" data-toggle="menu" href="#ui_menu" data-offset-top="100" data-spy="affix">{% if page_title != '{{ backend_title }}' %}{{ backend_title }}{% endif %}</a>
+        <a class="header-logo header-affix margin-left-no margin-right-no gf-title" data-toggle="menu" href="#ui_menu" data-offset-top="100" data-spy="affix">{% if page_title != backend_title %}．{% endif %}</a>
+        <a class="header-logo header-affix margin-left-no margin-right-no gf-title" data-toggle="menu" href="#ui_menu" data-offset-top="100" data-spy="affix">{{ page_title }}</a>
+        <ul class="nav nav-list pull-right right-menu">
+            <li class="search-bar"><div class="p6n-search-bar"></div></li>
+			<li class="dropdown">
+				<a class="dropdown-toggle waves-attach padding-left-no padding-right-no" data-toggle="dropdown" aria-expanded="true">
+					<span class="avatar avatar-sm"><i class="icon icon-lg">notifications</i></span>
+				</a>
+				<div class="dropdown-menu dropdown-menu-right dropdown-menu-right padding-bottom-no padding-top-no" style="min-width: 288px;">
+					<div class="tile">
+						<div class="tile-inner text-black">
+							<strong>Notifications</strong>
+						</div>
+					</div>
+					<a class="tile waves-attach" href="javascript:void(0)">
+						<div class="tile-side pull-left">
+							<div class="avatar avatar-sm">
+								<img src="/plugins/backend_ui_material/static/css/images/persian.jpg">
+							</div>
+						</div>
+						<div class="tile-inner text-black">
+							<span>Lorem ipsum dolor sit amet.</span>
+						</div>
+					</a>
+					<a class="tile waves-attach" href="javascript:void(0)">
+						<div class="tile-side pull-left">
+							<div class="avatar avatar-sm">
+								<img src="/plugins/backend_ui_material/static/css/images/persian.jpg">
+							</div>
+						</div>
+						<div class="tile-inner text-black">
+							<span>Consectetur adipiscing elit.</span>
+						</div>
+					</a>
+					<a class="tile waves-attach" href="javascript:void(0)">
+						<div class="tile-side pull-left">
+							<div class="avatar avatar-sm">
+								<img src="/plugins/backend_ui_material/static/css/images/persian.jpg">
+							</div>
+						</div>
+						<div class="tile-inner text-black">
+							<span>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</span>
+						</div>
+					</a>
+					<a class="tile waves-attach" href="javascript:void(0)">
+						<div class="tile-inner text-black text-right">
+							<span>Show All</span>
+							<i class="icon icon-lg">navigate_next</i>
+						</div>
+					</a>
+				</div>
+			</li>
+            <li class="dropdown">
+                <a class="dropdown-toggle text-black waves-attach padding-left-no padding-right-no" data-toggle="dropdown">
+                    <span class="avatar avatar-sm"><i class="icon icon-lg">more_vert</i></span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li>
+                        <a class="waves-attach" href="javascript:iframe.reload();"><span class="icon margin-right-sm">cached</span>&nbsp;重新整理頁面</a>
+                    </li>
+                    <li>
+                        <a class="waves-attach" href="javascript:iframe.print();"><span class="icon margin-right-sm">print</span>&nbsp;列印此頁面</a>
+                    </li>
+                    <li>
+                        <a class="waves-attach" href="/admin/log" target="content_iframe"><span class="icon margin-right-sm">error_outline</span>&nbsp;系統日誌</a>
+                    </li>
+                </ul>
+            </li>
+		</ul>
+	</header>
+	<nav aria-hidden="true" class="menu menu-left nav-drawer nav-drawer-md" id="ui_menu" tabindex="-1">
+		<div class="menu-scroll">
+			<div class="menu-content">
+				<a class="menu-logo gf-title anonymous-high-light" href="/dashboard/">{{ backend_title }}</a>
+				<div class="user-box">
+					<div class="avatar"></div>
+					<div class="user-name">kit kit </div>
+				</div>
+                <div class=" scrollDiv">
+				<ul class="nav">
+                    <li class="hidden">
+                        <a class="waves-attach collapsed" data-toggle="collapse" href="#menu_usually">常用項目
+                            <i class="icon material-icons float-icon">keyboard_arrow_right</i>
+                        </a>
+						<ul class="menu-collapse collapse" id="menu_usually"></ul>
+                    </li>
+                    {% set menu_n = 0 %}
+                    {% for item in menus -%}
+                    {%- if item.submenu -%}
+                    {% set menu_n = menu_n + 1 %}
+                    <li>
+                        <a class="waves-attach collapsed" data-toggle="collapse" href="#menu_{{ menu_n }}">{{ item.text }}
+                            <i class="icon material-icons float-icon">keyboard_arrow_right</i>
+                        </a>
+						<ul class="menu-collapse collapse" id="menu_{{ menu_n }}">
+                            {%- for subitem in item.submenu %}
+                            <li><a class="waves-attach" href="{{ subitem.url }}" target="content_iframe">{{ subitem.text }} </a></li>
+                            {%- endfor %}
+                        </ul>
+                    </li>
+                    {%- else -%}
+                    <li><a class="waves-attach" href="{{ item.url }}" target="content_iframe">{{ item.text }}</a></li>
+                    {% endif %}
+                    {%- endfor %}
+				</ul>
+                </div>
+			</div>
+		</div>
+	</nav>
+	<main class="content">
+        <div class="iframe_mask" style="top: 56px;bottom: 0;left: 0;right: 0;background: rgba(119, 119, 119, 0.0);position: absolute;"></div>
+        <iframe class="J_iframe" name="content_iframe" width="100%" height="100%" frameborder="0" seamless="" src=""></iframe>
+	</main>
+	<footer class="ui-footer" style="display: none;">
+		<div class="container gf-title">
+			<p>{{ backend_title }}</p>
+		</div>
+	</footer>
+	<div class="fbtn-container">
+		<div class="fbtn-inner">
+			<a class="fbtn fbtn-lg fbtn-brand-accent waves-attach waves-circle waves-light" data-toggle="dropdown"><span class="fbtn-text fbtn-text-left">Links</span><span class="fbtn-ori icon">apps</span><span class="fbtn-sub icon">close</span></a>
+			<div class="fbtn-dropup">
+				<a class="fbtn waves-attach waves-circle" href="https://github.com/Daemonite/material" target="_blank"><span class="fbtn-text fbtn-text-left">Fork me on GitHub</span><span class="icon">code</span></a>
+				<a class="fbtn fbtn-brand waves-attach waves-circle waves-light" href="https://twitter.com/daemonites" target="_blank"><span class="fbtn-text fbtn-text-left">Follow Daemon on Twitter</span><span class="icon">share</span></a>
+				<a class="fbtn fbtn-green waves-attach waves-circle" href="http://www.daemon.com.au/" target="_blank"><span class="fbtn-text fbtn-text-left">Visit Daemon Website</span><span class="icon">link</span></a>
+			</div>
+		</div>
+	</div>
+    <div aria-hidden="true" class="modal modal-va-middle fade" id="ui_dialog_example_alert" role="dialog" tabindex="-1">
+		<div class="modal-dialog modal-xs">
+			<div class="modal-content">
+				<div class="modal-inner">
+					<p class="h5 margin-top-sm text-black-hint">Discard draft?</p>
+				</div>
+				<div class="modal-footer">
+					<p class="text-right"><a class="btn btn-flat btn-brand-accent waves-attach" data-dismiss="modal">Cancel</a><a class="btn btn-flat btn-brand-accent waves-attach" data-dismiss="modal">Discard</a></p>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% if is_login == False %}<div class="login-backdrop in"></div>{% endif %}
+	<!-- js -->
+    <script type="text/javascript" src="/plugins/backend_ui_material/static/js/jquery.min.js?v=2.1.4"></script>
+	<script type="text/javascript" src="/plugins/backend_ui_material/static/js/material.min.js"></script>
+	<script type="text/javascript" src="/plugins/backend_ui_material/static/js/project.min.js?run={{ framework.app_version }}"></script>
+	<script type="text/javascript" src="/plugins/backend_ui_material/static/js/console.js?run={{ framework.app_version }}"></script>
+</body>
+</html>

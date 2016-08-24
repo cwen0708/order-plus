@@ -5,6 +5,7 @@ Classes that extend the basic ndb.Model classes
 from google.appengine.ext import ndb
 import types
 import time
+from monkey.behaviors.searchable import Searchable
 
 
 class ModelMeta(ndb.model.MetaModel):
@@ -62,7 +63,7 @@ class Model(ndb.Model):
     __metaclass__ = ModelMeta
 
     class Meta(object):
-        behaviors = ()
+        behaviors = (Searchable, )
 
     @classmethod
     def find_all_by_properties(cls, **kwargs):

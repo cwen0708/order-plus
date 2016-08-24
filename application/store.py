@@ -26,14 +26,18 @@ class StoreModel(BasicModel):
     is_enable = Fields.BooleanProperty(default=True)
 
     process_main = Fields.TextProperty(default=u"")         # 主流程
-    process_order_check = Fields.TextProperty(default=u"")  # 訂單確認
-    process_payment = Fields.TextProperty(default=u"")      # 金流收取
+    process_normal = Fields.TextProperty(default=u"")       # 一般流程
     process_pre_order = Fields.TextProperty(default=u"")    # 預購流程
-    process_send_goods = Fields.TextProperty(default=u"")   # 貨品寄送
-    process_order_end = Fields.TextProperty(default=u"")    # 訂單結束
+
     process_order_change = Fields.TextProperty(default=u"") # 訂單修改
+    process_order_check = Fields.TextProperty(default=u"")  # 訂單確認
     process_order_cancel = Fields.TextProperty(default=u"") # 訂單取消
+    process_order_end = Fields.TextProperty(default=u"")    # 訂單結束
+
+    process_send_goods = Fields.TextProperty(default=u"")   # 貨品寄送
     process_return_goods = Fields.TextProperty(default=u"") # 退貨處理
+
+    process_payment = Fields.TextProperty(default=u"")      # 金流收取
     process_refund = Fields.TextProperty(default=u"")       # 金流退款
 
     @classmethod

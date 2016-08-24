@@ -4,6 +4,11 @@
 # Created with YooLiang Technology (侑良科技).
 # Author: Qi-Liang Wen (温啓良）
 # Web: http://www.yooliang.com/
-# Date: 2016/1/22.
-from monkey.core.plugins import register_by_path
-register_by_path(__file__)
+# Date: 2015/7/12.
+
+
+plugins_helper = {
+    "title": u"Material Backend",
+    "desc": u"Material Backend",
+    "plugins_controller": "backend_ui_material"
+}

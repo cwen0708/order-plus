@@ -25,10 +25,10 @@ __all__ = (
     'KeyProperty',
     'RichTextProperty',
     'CategoryProperty',
+    'HiddenProperty',
     'ImageProperty',
     'ImagesProperty',
 )
-
 
 class ReverseReferenceProperty(list):
     pass
@@ -55,3 +55,7 @@ class ImageProperty(StringProperty):
 
 class ImagesProperty(TextProperty):
     __property_name__ = "images"
+
+
+class HiddenProperty(StringProperty):
+    __property_name__ = "hidden"

@@ -14,6 +14,7 @@ import datetime
 from ..models.online_code_model import OnlineCodeModel
 from ..models.online_code_target_model import OnlineCodeTargetModel
 from monkey import auth, add_authorizations
+from time import time
 
 
 class OnlineCode(Controller):
@@ -74,14 +75,12 @@ class OnlineCode(Controller):
         target = self.params.get_ndb_record("target")
         file_type = self.params.get_string("file_type")
         source_minify = u""
+        vision = int(time()) - 1460000000
         if file_type == "javascript":
-            vision = target.js_vision + 1
             target.js_vision = vision
         elif file_type == "css":
-            vision = target.css_vision + 1
             target.css_vision = vision
         elif file_type == "html":
-            vision = target.html_vision + 1
             target.html_vision = vision
         else:
             self.context["data"] = {"error": "Wrong File Type"}
@@ -154,4 +153,11 @@ class OnlineCode(Controller):
             "target_name": target_name,
             "source": source,
             "vision": vision
+        }
+
+    @route_with('/admin/online_code/plugins_check')
+    def admin_plugins_check(self):
+        self.meta.change_view('jsonp')
+        self.context['data'] = {
+            'status': "enable"
         }

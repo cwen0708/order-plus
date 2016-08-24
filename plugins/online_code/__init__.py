@@ -5,6 +5,10 @@
 # Author: Qi-Liang Wen (温啓良）
 # Web: http://www.yooliang.com/
 # Date: 2015/7/12.
-from monkey.core.plugins import register_by_path
-register_by_path(__file__)
+from monkey import datastore
 
+plugins_helper = {
+    "title": u"線上編輯原始碼",
+    "desc": u"可以以動態的方式進行程式碼編輯",
+    "plugins_controller": "online_code"
+}

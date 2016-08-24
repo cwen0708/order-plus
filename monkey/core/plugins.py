@@ -5,7 +5,7 @@ import monkey
 import os
 
 _plugins = []
-
+_plugins_list = []
 
 def exists(name):
     """
@@ -13,10 +13,6 @@ def exists(name):
     """
     return name in _plugins
 
-def register_by_path(path):
-    dri_path = os.path.join(os.path.dirname(path))
-    l = dri_path.split(os.path.sep)
-    register(l[-1])
 
 def register(name, templating=True):
     """
@@ -35,17 +31,42 @@ def register(name, templating=True):
         template.add_template_path(path, prefix=name)
 
 
-def enable(instance, name):
-    """
-    Routes all of the controllers inside of a plugin
-    """
-    from routing import route_all_controllers
-    try:
-        route_all_controllers(instance.router, name)
-    except ImportError, e:
-        logging.error("Plugin %s does not exist, or contains a bad import: %s" % (name, e))
-        raise
-
-
 def list():
     return _plugins
+
+
+def get_plugins_controller(plugin_name):
+    module_path = 'plugins.%s' % plugin_name
+    try:
+        module = __import__('%s' % module_path, fromlist=['*'])
+        cls = getattr(module, 'plugins_helper')
+        if "plugins_controller" in cls:
+            return cls["plugins_controller"].split(",")
+    except:
+        return [plugin_name]
+
+
+def get_all_in_application():
+    plugins_list = []
+    try:
+        from application import application_action_helper
+        for item in application_action_helper:
+            plugins_list.append(item)
+    except:
+        pass
+    return plugins_list
+
+
+def get_all_installed():
+    plugins_list = []
+    dir_plugins = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'plugins'))
+    for dirPath in os.listdir(dir_plugins):
+        if dirPath.find(".") < 0:
+            plugins_list += get_plugins_controller(dirPath)
+    try:
+        from application import application_action_helper
+        for item in application_action_helper:
+            plugins_list.append(item)
+    except:
+        pass
+    return plugins_list

@@ -61,7 +61,7 @@ class Pagination(object):
         which cursor and the number of objects the user is requesting.
         """
         if not limit:
-            limit = self.controller.meta.pagination_limit if hasattr(self.controller.meta, 'pagination_limit') else 100
+            limit = self.controller.meta.pagination_limit if hasattr(self.controller.meta, 'pagination_limit') else 25
         if not cursor:
             cursor = self.controller.request.params.get('cursor', None)
             if cursor == 'False':
@@ -86,7 +86,7 @@ class Pagination(object):
         if next:
             memcache.set('paging.cursor.previous.%s' % next, (page, current))
 
-        logging.info("Page: %s, Previous: %s, Current: %s, Next: %s" % (page, previous, current, next))
+        logging.debug("Page: %s, Previous: %s, Current: %s, Next: %s" % (page, previous, current, next))
 
         ctx.set_dotted('paging.page', page)
 
@@ -126,18 +126,20 @@ class Pagination(object):
         query = self._get_query(query)
 
         if not query:
-            logging.info('Couldn\'t auto paginate, no valid query found')
+            logging.debug('Couldn\'t auto paginate, no valid query found')
             return
 
         if cursor and not isinstance(cursor, Cursor):
             cursor = Cursor(urlsafe=cursor)
 
+        if cursor is u"":
+            cursor = None
         data, next_cursor, more = query.fetch_page(limit, start_cursor=cursor)
 
         if hasattr(self.controller, 'scaffold'):
             self.controller.context[self.controller.scaffold.plural] = data
         else:
-            logging.info('Could not set data')
+            logging.debug('Could not set data')
 
         self.set_pagination_info(
             current_cursor=cursor.urlsafe() if cursor else False,

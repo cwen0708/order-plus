@@ -9,6 +9,7 @@ from monkey.core.wtforms.wtforms.widgets import html_params, HTMLString
 from monkey.core.wtforms.wtforms.compat import text_type
 from cgi import escape
 
+
 class MultipleReferenceCheckboxWidget(object):
     """
     Widget for MultipleReferenceField. Displays options as checkboxes"""
@@ -59,25 +60,22 @@ class ImageSelectWidget(object):
     def __call__(self, field, **kwargs):
         kwargs.setdefault('id', field.id)
         kwargs.setdefault('name', field.id)
-        kwargs['class'] = kwargs.get('class', '').replace('span6', '') + " image"
+        kwargs['class'] = kwargs.get('class', '').replace('span6', 'form-control') + " image"
         if field.data == "None" or field.data is None:
             field.data = ""
-        html = u'<div class="img_selector_div"><%s type="hidden" %s value="%s" />' \
-               u'<a data-target="%s" class="btn-image-open-dropbox">Dropbox</a>'\
-               u'<a data-target="%s" class="btn-image-open-google-picker">Google相冊</a>'\
-               u'<a data-target="%s" class="btn-image-open-server">伺服器</a>'\
-               u'<div class="img_selector_sp"></div>'\
-               % (
-            self.html_tag, html_params(**kwargs), field.data,
-            field.id,
-            field.id,
-            field.id,
-        )
         if field.data:
-            html += u'<div class="img_selector_item" id="img-%s" style="background-image: url(%s);" /></div>' % (field.id, field.data)
+            field_data = field.data
         else:
-            html += u'<div class="img_selector_item img_selector_item_none" id="img-%s" style="" /></div>' % (field.id)
-
+            field_data = ""
+        html = u"""
+        <div class="img_selector_div input-group">
+            <%s type="text" %s value="%s" />
+            <div class="input-group-btn">
+                <div class="btn btn-outline img_selector_item" style="background-image: url(%s);" /></div>
+                <a href="#" class="btn btn-info filepicker"><i class="fa fa-photo"></i> 選取</a>
+            </div>
+        </div>
+        """ % (self.html_tag, html_params(**kwargs), field_data, field_data)
         return HTMLString(html)
 
 
@@ -102,12 +100,7 @@ class ImagesSelectWidget(object):
                u'<a data-target="%s" class="btn-images-open-google-picker">Google相冊</a>'\
                u'<a data-target="%s" class="btn-images-open-server">伺服器</a>' \
                u'<div class="img_selector_sp"></div>'\
-               % (
-            self.html_tag, html_params(**kwargs), field.data, self.html_tag,
-            field.id,
-            field.id,
-            field.id,
-        )
+               % (self.html_tag, html_params(**kwargs), field.data, self.html_tag, field.id, field.id, field.id,)
         for item in list:
             if item != u"":
                 html += u'<div class="img_selector_item" data-link="%s" style="background-image: url(%s);" />' % (item, item)
@@ -135,7 +128,9 @@ class CategorySelectWidget(object):
             kwargs['multiple'] = True
         html = ['<select %s>' % html_params(name=field.name, **kwargs)]
         for val, label, selected in field.iter_choices():
-            html.append(self.render_option(val, label, selected))
+            return_item = self.render_option(val, label, selected)
+            if return_item:
+                html.append(return_item)
         html.append('</select>')
         return HTMLString(''.join(html))
 
@@ -151,6 +146,9 @@ class CategorySelectWidget(object):
         if value == '__None':
             return HTMLString('<option %s>%s</option>' % (html_params(**options), escape(text_type(label))))
         else:
+            if hasattr(label, "level") and hasattr(label, "name"):
+                if label.level == 9999 and label.name == u'super_monkey' and (selected is False or selected is None):
+                    return None
             return HTMLString('<option %s>%s</option>' % (html_params(**options), escape(text_type(label.title))))
 
 
@@ -163,3 +161,33 @@ class Option(object):
     """
     def __call__(self, field, **kwargs):
         return CategorySelectWidget.render_option(field._value(), field.label.text, field.checked, **kwargs)
+
+
+class HiddenWidget(object):
+    html_params = staticmethod(html_params)
+    """
+    Widget for MultipleReferenceField. Displays options as checkboxes"""
+    def __init__(self, html_tag='input'):
+        super(HiddenWidget, self).__init__()
+        self.html_tag = html_tag
+
+    def __call__(self, field, **kwargs):
+        kwargs.setdefault('id', field.id)
+        kwargs.setdefault('name', field.id)
+        kwargs['class'] = kwargs.get('class', '').replace('span6', 'form-control') + " image"
+        if field.data == "None" or field.data is None:
+            field.data = ""
+        if field.data:
+            field_data = field.data
+        else:
+            field_data = ""
+        html = u"""
+        <div class="img_selector_div input-group">
+            <%s type="text" %s value="%s" />
+            <div class="input-group-btn">
+                <div class="btn btn-outline img_selector_item" style="background-image: url(%s);" /></div>
+                <a href="#" class="btn btn-info filepicker"><i class="fa fa-photo"></i> 選取</a>
+            </div>
+        </div>
+        """ % (self.html_tag, html_params(**kwargs), field_data, field_data)
+        return HTMLString(html)

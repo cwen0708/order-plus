@@ -2,6 +2,10 @@
 monkey' templating engine.
 """
 
+from google.appengine.api import users, app_identity
+from google.appengine.ext import db, ndb
+from routing import route_name_exists, current_route_name
+from json_util import DatastoreEncoder
 from settings import settings
 import logging
 import os
@@ -12,14 +16,10 @@ import jinja2
 import webapp2
 import types
 import collections
-from google.appengine.api import users, app_identity
-from google.appengine.ext import db, ndb
 import monkey
 import events
 import plugins
-#import time_util
-from routing import route_name_exists, current_route_name
-from json_util import DatastoreEncoder
+import time_util
 
 debug = os.environ.get('SERVER_SOFTWARE', '').startswith('Dev')
 
@@ -94,9 +94,9 @@ class TemplateEngine(object):
         return self.environment.get_or_select_template(name)
 
     def themed(self, name, theme=None):
-        '''
+        """
         Returns a template from a particular theme, or the default.
-        '''
+        """
         if theme:
             # Hilariously this works because our search paths always include the 'base',
             # so by just repeating what we do in determine paths, we can find a themed
@@ -114,7 +114,9 @@ class TemplateEngine(object):
         Sets up all of the appropriate global variales for the templating system
         """
         self.environment.globals.update({
-            'format_value': format_value,
+            'print_value': format_value,
+            'print_value_with_lang': format_value_with_lang,
+            'print_text': pure_text,
             'isinstance': isinstance,
             'math': math,
             'int': int,
@@ -124,27 +126,23 @@ class TemplateEngine(object):
             'str': str,
             'unicode': unicode,
             'datetime': datetime,
-            'localize': "Taiwan", #time_util.localize,
+            'localize': time_util.localize,
             'framework': {
-                'format_value': format_value,
-                'uri_for': webapp2.uri_for,
                 'route_name_exists': route_name_exists,
                 'current_route_name': current_route_name,
                 'is_current_user_admin': users.is_current_user_admin,
                 'users': users,
-                'theme': self.theme,
                 'settings': settings(),
                 'has_plugin': plugins.exists,
                 'plugins': plugins.list,
                 'version': monkey.version,
                 'app_version': os.environ['CURRENT_VERSION_ID'],
-                'hostname': app_identity.get_default_version_hostname()
+                'hostname': app_identity.get_default_version_hostname(),
+                'themed': self.themed.__get__(self),
             },
-            'pure_text': pure_text,
             'json': _json_filter,
             'inflector': monkey.inflector,
             'dir': dir,
-            'themed': self.themed.__get__(self),
             'ndb': ndb,
             'db': db,
         })
@@ -220,11 +218,21 @@ def _is_datetime(obj):
 # Formatters
 #
 import datetime as cdt
-#    datetime.datetime: lambda x: time_util.localize(x).strftime('%b %d, %Y at %I:%M%p %Z'),
+
+def format_datetime(x, format=None):
+    if format is None:
+        return time_util.localize(x).strftime('%Y-%m-%d %H:%M:%S')
+    return time_util.localize(x).strftime(format)
+
+def format_date(x, format=None):
+    if format is None:
+        return x.strftime('%Y-%m-%d')
+    return x.strftime(format)
 
 formatters = {
-    datetime.datetime: lambda x: x.strftime('%b %d, %Y at %I:%M%p %Z'),
-    datetime.date: lambda x: x.strftime('%b %d, %Y'),
+    datetime.datetime: format_datetime,
+    #datetime.datetime: lambda x: x.strftime('%b %d, %Y at %I:%M%p %Z'),
+    datetime.date: format_date,
     ndb.Key: lambda x: format_value(x.get())
 }
 
@@ -239,7 +247,7 @@ def pure_text(text, length=50, more=u"..."):
         return s
 
 
-def format_value(val):
+def format_value(val, format=None):
     if isinstance(val, types.StringTypes):
         return val
 
@@ -249,6 +257,20 @@ def format_value(val):
     formatter = formatters.get(type(val))
 
     if formatter:
-        return formatter(val)
+        try:
+            return formatter(val, format)
+        except:
+            return formatter(val)
 
     return unicode(val)
+
+
+def format_value_with_lang(item, field_name, lang=None):
+    if field_name is None or lang is None:
+        return ""
+    lang_field = "%s_lang_%s" % (field_name, lang)
+    if hasattr(item, lang_field):
+        return format_value(getattr(item, lang_field))
+    else:
+        return ""
+

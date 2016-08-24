@@ -26,27 +26,7 @@ settings['timezone']['local'] = 'Asia/Taipei'
 settings['email'] = {}
 settings['email']['sender'] = None
 
-# 外掛模組
-settings['plugins'] = {}
-settings['plugins']['scaffold'] = True
-settings['plugins']['flash_messages'] = True
-settings['plugins']['backend_account'] = True
-settings['plugins']['backend_account_administrator'] = {}
-settings['plugins']['backend_account_administrator']['name'] = u'管理者'
-settings['plugins']['backend_account_administrator']['account'] = u'admin'
-settings['plugins']['backend_account_administrator']['password'] = u'qwER12#$'
-settings['plugins']['backend_account_administrator']['level'] = 999
-settings['plugins']['backend_ui_saimiri'] = False
-settings['plugins']['backend_ui_material'] = True
-settings['plugins']['online_code'] = True
-settings['plugins']['oauth'] = False
-settings['plugins']['oauth_manager'] = False
-settings['plugins']['custom_auth'] = False
-settings['plugins']['recaptcha'] = True
-settings['plugins']['web_settings'] = False
-settings['plugins']['web_page'] = False
-settings['plugins']['web_file'] = True
-settings['plugins']['settings'] = False
+settings["name"]
 
 settings['appstats'] = {
     'enabled': False,

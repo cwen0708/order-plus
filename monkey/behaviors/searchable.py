@@ -1,4 +1,4 @@
-from monkey.core.ndb import Behavior
+from monkey.core.ndb.behavior import Behavior
 from monkey.core import search
 
 

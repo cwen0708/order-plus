@@ -4,7 +4,7 @@
     <title>
         {%- block layout_head_title -%}
             {%- if scaffolding -%}{{scaffolding.title}}{%- endif -%}
-            {{inflector.humanize(this.route.action)}}
+            {{inflector.humanize(route.action)}}
         {%- endblock -%}
     </title>
     <link rel="stylesheet" type="text/css" href="/plugins/scaffold/static/css/bootstrap.min.css">
@@ -12,20 +12,19 @@
     <script src="//www.google.com/jsapi"></script>
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     {% block layout_head %}
-        {{this.events.layout_head()}}
+        {{events.layout_head()}}
     {% endblock %}
     <script type="text/javascript" src="/plugins/scaffold/static/js/bootstrap.js"></script>
 </head>
 <body>
     <div class="container">
     {% block layout_body %}
-        {% block layout_before_content %}{{this.events.layout_before_content()}}{% endblock %}
+        {% block layout_before_content %}{{events.layout_before_content()}}{% endblock %}
         {% include "elements/flash_messages.html" with context %}
         {% block layout_content %}{% endblock %}
-        {% block layout_after_content %}{{this.events.layout_after_content()}}{% endblock %}
+        {% block layout_after_content %}{{events.layout_after_content()}}{% endblock %}
     {% endblock %}
     {% block layout_scripts %}
-        {{this.events.layout_scripts()}}
     {% endblock %}
     </div>
 </body>

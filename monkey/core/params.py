@@ -191,3 +191,25 @@ class ParamInfo(object):
             return True
         else:
             return False
+
+    def get_base64(self, key="", default_value=None):
+        """ get from request and try to parse to a str(unicode)
+
+        Args:
+            key: the key to get from request
+            default_value: then value not exits return
+        """
+        import base64
+        if key is "":
+            return default_value
+        try:
+            if key not in self.request.params:
+                rv = default_value
+            else:
+                rv = self.request.get(key)
+        except:
+            rv = default_value
+        if rv is None or rv is '' or rv is u"":
+            return None
+        return base64.urlsafe_b64decode(str(rv))
+

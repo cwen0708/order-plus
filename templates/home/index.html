@@ -7,45 +7,49 @@
         <div class="page-brand-info">
             <div class="brand">
                 <img class="brand-img" src="https://static.orderplus.com.tw/img/logo.png" alt="...">
-
                 <h2 class="brand-text font-size-40">Order Plus 訂購+</h2>
             </div>
             <p class="font-size-20"></p>
         </div>
         <div class="page-login-main">
-            <form>
-                <h3 class="font-size-24">快速註冊 及 登入</h3>
-                <p>
-                    請將下列驗証碼，以手機簡訊發送到 <span>指定門號</span> ，<br/>
-                    然後點擊「註冊 / 登入」按鈕即可。<br/><br/>
-                </p>
-                <p>
-                <div class="form-group form-material">
-                    <label class="control-label" for="select">指定門號</label>
-                    <select class="form-control" id="select">
-                        <option>0977003072 (亞太電信)</option>
-                    </select>
+            <form style="margin: 15px 0">
+                <div id="login_back_box" style="display: none;">
+                    <h3 class="font-size-24">請稍候...</h3>
+                    <p>
+                    </p>
                 </div>
-                <div class="form-group form-material floating">
-                    <label class="control-label" for="code">驗証碼</label>
-                    <input type="text" class="form-control " name="code" value="{{ mobile_code }}" id="code" readonly/>
+                <div id="login_box" style="display: none;">
+                    <img src="//static.orderplus.com.tw//icons/icon-128x128-0604.png" style="margin: 0  35px 20px 0;width: 128px;float: left;">
+                    <h3 class="font-size-24">快速註冊 及 登入</h3>
+                    <p>
+                        請將下列驗証碼，以手機簡訊發送到 <span>指定門號</span> ，<br/>
+                        然後點擊「註冊 / 登入」按鈕即可。<br/><br/>
+                    </p>
+                    <div class="form-group form-material" style="clear:both; ">
+                        <label class="control-label" for="select">指定門號</label>
+                        <select class="form-control" id="select">
+                            <option value="+886977003072">0977003072 (亞太電信)</option>
+                        </select>
+                    </div>
+                    <div class="form-group form-material floating">
+                        <label class="control-label" for="code">驗証碼</label>
+                        <input type="text" class="form-control " name="code" value="{{ mobile_code }}" id="code" readonly/>
+                    </div>
+                    <a id="quick_sms" type="button" class="btn btn-primary btn-block" style="margin-left: 0">發送簡訊</a>
+                    <p>
+                        <目前僅提供台灣用戶使用></目前僅提供台灣用戶使用>
+                        <br />
+                        <br />
+                    </p>
+                    <button type="button" class="btn btn-primary btn-block" id="login" style="display: none;">註冊 / 登入</button>
+                    <p id="msg_info" class="label label-primary" style="display: none;"></p>
+                    <p id="msg_error" class="label label-danger" style="display: none;"></p>
                 </div>
-                <a id="quick_sms" type="button" class="btn btn-primary btn-block" style="margin-left: 0">發送簡訊</a>
-                <p>
-                    (目前僅提供台灣用戶使用)
-                    <span class="token" style="display: none;">{{ token }}</span>
-                    <br />
-                    <br />
-                    <span id="span_status">狀態</span>
-                </p>
-                <button type="button" class="btn btn-primary btn-block" id="login">註冊 / 登入</button>
-                <p id="msg_info" class="label label-primary" style="display: none;"></p>
-                <p id="msg_error" class="label label-danger" style="display: none;"></p>
             </form>
-            <footer class="page-copyright">
-                <p>© 2015. All RIGHT RESERVED.</p>
+            <footer class="page-copyright" style="height: 35px;">
+                <p>OrderPlus © 2015</p>
 
-                <div class="social">
+                <div class="social" style="display: none;">
                     <a class="btn btn-icon btn-round social-twitter" href="javascript:void(0)">
                         <i class="icon bd-twitter" aria-hidden="true"></i>
                     </a>

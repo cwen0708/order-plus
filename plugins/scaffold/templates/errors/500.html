@@ -1,4 +1,9 @@
-{% extends "layouts/error.html" %}
+{% if is_backend %}
+    {% extends "backend/error.html" %}
+{% else %}
+    {% extends "layouts/error.html" %}
+{% endif %}
+
 
 {% block title %}Server Error{% endblock %}
 {% block subtitle %}An unexpected application error has occured{% endblock %}

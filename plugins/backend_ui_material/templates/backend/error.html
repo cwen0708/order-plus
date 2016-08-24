@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+    <title>Application Error</title>
+    <link rel="stylesheet" href="/plugins/backend_ui_material/static/css/bootstrap.min.css?v=3.3.6">
+    <link rel="stylesheet" href="/plugins/backend_ui_material/static/css/font-awesome.min.css?v=4.4.0">
+    <link rel="stylesheet" href="/plugins/backend_ui_material/static/css/animate.min.css">
+    <link rel="stylesheet" href="/plugins/backend_ui_material/static/css/page.css?v=4.1.0">
+    <link rel="stylesheet" href="/plugins/backend_ui_material/static/css/page.more.css?v=0.0.1&run={{ framework.app_version }}">
+    <script type="text/javascript" src="/plugins/backend_ui_material/static/js/jquery.min.js?v=2.1.4"></script>
+    <script type="text/javascript" src="/plugins/backend_ui_material/static/js/bootstrap.min.js?v=3.3.6"></script>
+    <script type="text/javascript" src="/plugins/backend_ui_material/static/js/page.min.js?v=4.1.0&run={{ framework.app_version }}"></script>
+</head>
+<body class="gray-bg">
+    <div class="middle-box text-center animated fadeInDown">
+        {% block layout_content %}
+        <h1>{{ code }}</h1>
+        <h3 class="font-bold">{% block title %}Oops{% endblock %}</h3>
+
+        <div class="error-desc">
+            {% block subtitle %}{% endblock %}
+            , <a href="javascript: backToList();" class="backToList">返回列表頁</a>
+        </div>
+        <div class="error-desc text-left">
+            {% block body %}{% endblock %}
+        </div>
+        {% if exception %}
+        <div class="error-desc" style="margin-top: 30px;">
+            <strong>技術細節</strong>
+        </div>
+        <div class="error-desc text-left">
+        <pre class='prettyprint' style="margin-top: 10px; background: #fff;">{{exception}}</pre>
+        </div>
+        {% endif %}
+        {% endblock %}
+    </div>
+</body>
+</html>

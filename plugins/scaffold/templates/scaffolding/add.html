@@ -1,5 +1,5 @@
-{% if this.route.prefix == 'admin' %}
-    {% extends "backend/add.html" %}
-{% else %}
-    {% extends "default/add.html" %}
-{% endif %}
+{%- if route.prefix == "admin" -%}
+    {%- extends "backend/add.html" -%}
+{%- else -%}
+    {%- extends "default/add.html" -%}
+{%- endif -%}

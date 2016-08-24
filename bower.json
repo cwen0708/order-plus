@@ -1,0 +1,21 @@
+{
+  "name": "order-plus",
+  "authors": [
+    "cwen0708 <cwen0708@gmail.com>"
+  ],
+  "description": "orderplus",
+  "main": "",
+  "license": "MIT",
+  "homepage": "www.orderplus.com.tw",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "sweetalert2": "^4.1.9",
+    "jquery": "^3.1.0"
+  }
+}

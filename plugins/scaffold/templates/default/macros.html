@@ -5,7 +5,7 @@
     Chooses the appropriate layout for the current prefix.
 #}
 {% macro layout() -%}
-    {{ scaffolding.layouts.get(this.route.prefix, scaffolding.layouts[None]) }}
+    {{ scaffolding.layouts.get(route.prefix, scaffolding.layouts[None]) }}
 {%- endmacro %}
 
 
@@ -14,28 +14,20 @@
     data. Sequences are printed as unordered lists, dates
     are localized.
 #}
-{% macro print_value(value) -%}
-    {{framework.format_value(value)}}
-{%- endmacro %}
-
-{% set print = print_value %}
 
 
 {#
-    Includes {{this.name}}/{{template}} and falls back to
+    Includes {{controller_name}}/{{template}} and falls back to
     scaffolding/{{template}}
 #}
-{% macro override_include(template) -%}
-{% include [this.name+'/'+template,'scaffolding/'+template] %}
+{% macro partial_include(template) -%}
+{% include [controller_name+'/'+template,'scaffolding/'+template] %}
 {%- endmacro %}
 
 
 {#
     Creates a uri for the current controller with a given action.
     #}
-{% macro action_uri(action) -%}
-    {{ this.uri(action=action,*varargs,**kwargs) }}
-{%- endmacro %}
 
 
 {#
@@ -50,9 +42,9 @@
     Generates a single action button for an item
 #}
 {% macro action_button(item, action, icon, btn, class=None, confirm=False): -%}
-    {% if this.uri_exists(action=action) %}
+    {% if uri_exists_with_permission(action=action) %}
         <a
-            href='{{ action_uri(action,key=this.encode_key(item)) }}'
+            href='{{ uri_action_uri(action,key=print_key(item)) }}'
             class='btn btn-sm {{btn}} {{class}}'
             rel="tooltip"
             title='{{inflector.titleize(action)}}'
@@ -79,7 +71,7 @@
     Link for navigation
 #}
 {% macro nav_link(action, text) -%}
-    {% if uri_exists(action=action) %}
-        <a href="{{uri(action=action)}}" class="btn btn-default {% if on_uri(action=action): %}active{% endif %}">{{text}}</a>
+    {% if uri_exists_with_permission(action=action) %}
+        <a href="{{ uri(action=action)}}" class="btn btn-default {% if on_uri(action=action): %}active{% endif %}">{{text}}</a>
     {% endif %}
 {%- endmacro %}

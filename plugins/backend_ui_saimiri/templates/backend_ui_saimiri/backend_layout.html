@@ -1,9 +1,0 @@
-{% block layout_body %}
-    {% block layout_before_content %}{{ this.events.layout_before_content() }}{% endblock %}
-    {% include "backend_ui_saimiri/flash_messages.html" with context %}
-    {% block layout_content %}{% endblock %}
-    {% block layout_after_content %}{{ this.events.layout_after_content() }}{% endblock %}
-{% endblock %}
-{% block layout_scripts %}
-    {{ this.events.layout_scripts() }}
-{% endblock %}

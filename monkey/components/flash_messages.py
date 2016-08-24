@@ -33,7 +33,6 @@ class FlashMessages(object):
         return flashes
 
     def _on_before_render(self, controller, *args, **kwargs):
-        #controller.context.set_dotted('this.flash_messages', self.messages().items)
-        pass
+        controller.context.set_dotted('this.flash_messages', self.messages().items)
 
     __call__ = flash

@@ -1,7 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from monkey.core import settings, template
 from google.appengine.api import mail, app_identity
 import logging
-import requests
 
 
 class MailGun():

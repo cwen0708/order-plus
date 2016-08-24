@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import time
 import template
 import json_util
 from protorpc import protojson
 from protorpc.message_types import VoidMessage
 from events import ViewEvents
+from google.appengine.api import namespace_manager
 
 _views = {}
 
@@ -35,7 +37,6 @@ class ViewContext(dict):
 
 
 class View(object):
-
     class __metaclass__(type):
         def __new__(meta, name, bases, dict):
             global _views
@@ -66,40 +67,45 @@ class TemplateView(View):
         super(TemplateView, self).__init__(controller, context)
         self.template_name = None
         self.template_ext = 'html'
-        self.theme = None
+        self.theme = controller.theme
         self.setup_template_variables()
 
     def setup_template_variables(self):
         self.context.get_dotted('this', {}).update({
-            'route': self.controller.route,
-            'name': self.controller.name,
             'uri': self.controller.uri,
-            'uri_exists': self.controller.uri_exists,
+            'uri_exists': self.controller.uri_exists_with_permission,
             'on_uri': self.controller.on_uri,
-            'request': self.controller.request,
-            'self': self.controller,
             'encode_key': self.controller.util.encode_key,
             'decode_key': self.controller.util.decode_key,
-            'user': self.controller.user,
-            'events': self.events
         })
         self.context.update({
-            'route': self.controller.route,
+            'controller_name': self.controller.name,
+            'events': self.events,
             'uri': self.controller.uri,
             'uri_exists': self.controller.uri_exists,
+            'uri_action_link': self.controller.uri_action_link,
+            'uri_exists_with_permission': self.controller.uri_exists_with_permission,
+            'user': self.controller.user,
             'on_uri': self.controller.on_uri,
             'request': self.controller.request,
-            'user': self.controller.user
+            'route': self.controller.route,
+            'params': self.controller.params,
+            'print_key': self.controller.util.encode_key,
+            'print_img': self.controller.util.print_img,
+            'print_setting': self.controller.settings.print_setting,
+            'datastore': self.controller.datastore
         })
+        r = self.controller.route
         self.controller.events.setup_template_variables(controller=self.controller)
 
     def render(self, *args, **kwargs):
         self.controller.events.before_render(controller=self.controller)
-
+        self.context.update({'theme': self.theme})
         result = template.render_template(self.get_template_names(), self.context, theme=self.theme)
         self.controller.response.content_type = 'text/html'
         self.controller.response.charset = 'utf-8'
         self.controller.response.unicode_body = result
+        self.controller.response.headers["spend-time"] = str(time.time() - self.controller.request_start_time)
         self.controller.events.after_render(controller=self.controller, result=result)
         return self.controller.response
 
@@ -173,47 +179,50 @@ class JsonView(View):
 
     def render(self, *args, **kwargs):
         self.controller.events.before_render(controller=self.controller)
-        result = unicode(json_util.stringify(self._get_data()))
-        self.controller.response.content_type = 'application/json'
         self.controller.response.charset = 'utf-8'
+        self.controller.response.content_type = 'application/json'
+        result = unicode(json_util.stringify(self._get_data()))
         self.controller.response.unicode_body = result
         self.controller.events.after_render(controller=self.controller, result=result)
+        self.controller.response.headers["spend-time"] = str(time.time() - self.controller.request_start_time)
         return self.controller.response
 
 
 class JsonpView(JsonView):
     def render(self, *args, **kwargs):
+        self.controller.events.before_render(controller=self.controller)
+        self.controller.response.charset = 'utf-8'
+        self.controller.response.content_type = 'application/json'
+        self.controller.response.headers.setdefault('Access-Control-Allow-Origin', '*')
         callback = 'callback'
         if 'callback' in self.controller.request.params:
             callback = self.controller.request.get('callback')
-        self.controller.response.headers.setdefault('Access-Control-Allow-Origin', '*')
-        self.controller.events.before_render(controller=self.controller)
         result = unicode(json_util.stringify(self._get_data()))
-        self.controller.response.content_type = 'application/json'
-        self.controller.response.charset = 'utf-8'
         self.controller.response.unicode_body = u'%s(%s)' % (callback, result)
+        self.controller.logging.debug(result)
         self.controller.events.after_render(controller=self.controller, result=result)
+        self.controller.response.headers["spend-time"] = str(time.time() - self.controller.request_start_time)
         return self.controller.response
 
 
 class MessageView(JsonView):
     def render(self, *args, **kwargs):
         self.controller.events.before_render(controller=self.controller)
+        self.controller.response.charset = 'utf-8'
+        self.controller.response.content_type = 'application/json'
         data = self._get_data(default=VoidMessage())
         result = unicode(protojson.encode_message(data))
-        self.controller.response.content_type = 'application/json'
-        self.controller.response.charset = 'utf-8'
         self.controller.response.unicode_body = result
         self.controller.events.after_render(controller=self.controller, result=result)
+        self.controller.response.headers["spend-time"] = str(time.time() - self.controller.request_start_time)
         return self.controller.response
 
 
 class RenderView(TemplateView):
     def render(self, *args, **kwargs):
         self.controller.events.before_render(controller=self.controller)
-
-        result = template.render_template(self.get_template_names(), self.context, theme=self.theme)
         self.controller.response.charset = 'utf-8'
+        result = template.render_template(self.get_template_names(), self.context, theme=self.theme)
         self.controller.response.unicode_body = result
         self.controller.events.after_render(controller=self.controller, result=result)
         return self.controller.response

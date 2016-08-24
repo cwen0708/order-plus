@@ -2,10 +2,10 @@
     {% if field.short_name in form.disabled_fields %}
         {% set _ = kwargs.setdefault('readonly', true) %}
     {% endif %}
-    {% set _ = kwargs.setdefault('tabindex', 0) %}
     {% if field.type == 'HiddenField' or field.widget.input_type == 'hidden' %}
         {{ field(**kwargs) }}
     {% else %}
+        {% set _ = kwargs.setdefault('tabindex', 0) %}
         {% set css_classes = [kwargs.pop('class','')] %}
 
         {% if field.widget.__class__.__name__ in ('TextInput', 'Select', 'Text', 'PasswordInput', 'FileInput', 'TextArea', 'EditorTextProperty') %}

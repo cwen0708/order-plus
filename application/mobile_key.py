@@ -22,6 +22,8 @@ import time
 import logging
 import webapp2
 import os
+from . import mobile_key_action_helper
+
 
 timeout = 864000
 
@@ -161,6 +163,9 @@ class MobileKeyModel(BasicModel):
 
 
 class MobileKey(Controller):
+    class Scaffold:
+        title = mobile_key_action_helper["actions"]
+
     class Meta:
         title = u"手機驗証碼"
         components = (scaffold.Scaffolding, Pagination, Search)

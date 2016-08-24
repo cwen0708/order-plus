@@ -343,3 +343,28 @@ class CategoryReferenceField(wtforms.Field):
                 self.data = [db.Key(x) for x in valuelist]
         else:
             self.data = []
+
+
+class HiddenField(wtforms.fields.HiddenField):
+    widget = wtforms.widgets.HiddenInput()
+    __temporary_data = None
+    def _value(self):
+        if self.data:
+            return self.data
+        else:
+            return u''
+
+    def process_formdata(self, valuelist):
+        if valuelist and valuelist[0]:
+            self.data = valuelist[0]
+        else:
+            self.data = None
+
+    def pre_validate(self, form):
+        if self.data:
+            self.__temporary_data = self.data
+            self.data = self.data
+
+    def post_validate(self, form, validation_stopped):
+        if self.__temporary_data:
+            self.data = self.__temporary_data

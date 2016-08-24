@@ -7,23 +7,27 @@
 # Date: 2015/7/12.
 
 from monkey import BasicModel
-from monkey.behaviors.searchable import Searchable
 from monkey import Fields
 
 
 class WebFileModel(BasicModel):
     class Meta:
-        behaviors = (Searchable,)
         label_name = {
-            "a22": u"分類",
-            "title": u"標題",
-            "title_en": u"英文標題",
-            "page_url": u"頁面網址",
+            "filename": u"檔案名稱",
+            "content_type": u"類型",
+            "hash": u"hash",
+            "size": u"大小",
+            "file": u"檔案鍵值",
+            "url": u"網址",
             "is_enable": u"顯示於前台",
-            "content": u"內容 "
         }
+    filename = Fields.StringProperty()
+    content_type = Fields.StringProperty()
+    hash = Fields.StringProperty()
+    size = Fields.IntegerProperty(default=0)
     file = Fields.BlobKeyProperty()
-    file_cloud_storage = Fields.StringProperty()
+    url = Fields.StringProperty()
+
 
     @classmethod
     def all_by_created(cls):

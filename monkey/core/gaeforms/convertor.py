@@ -50,6 +50,10 @@ def convert_RichTextProperty(self, model, prop, kwargs):
     return fields.RichTextField(**kwargs)
 
 
+def convert_HiddenProperty(self, model, prop, kwargs):
+    return fields.HiddenField(**kwargs)
+
+
 def convert_ImageProperty(self, model, prop, kwargs):
     return fields.ImagePropertyField(**kwargs)
 
@@ -70,6 +74,7 @@ add_convertor('BlobKeyProperty', convert_BlobKeyProperty)
 add_convertor('GeoPtProperty', convert_GeoPtProperty)
 add_convertor('RichTextProperty', convert_RichTextProperty)
 add_convertor('CategoryProperty', convert_CategoryProperty)
+add_convertor('HiddenProperty', convert_HiddenProperty)
 add_convertor('ImageProperty', convert_ImageProperty)
 add_convertor('ImagesProperty', convert_ImagesProperty)
 

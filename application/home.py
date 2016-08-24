@@ -151,7 +151,7 @@ class Home(Controller):
 
         self.context["data"] = {"state": "success"}
 
-    @route_with("/dashboard")
+    @route_with("/dashboard_old")
     @add_authorizations(require_orderplus_user)
     def console_dashboard(self):
         self.response.headers.setdefault('Access-Control-Allow-Origin', '*')

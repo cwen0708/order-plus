@@ -48,22 +48,20 @@ def add(route, app_router=None):
     app_router.add(route)
 
 
-
-def auto_route(app_router, plugins, app_path=None, debug=True):
+def auto_route(app_router, plugin_list, app_path=None, debug=True):
     """
     Automatically routes all controllers in main app and plugins
     """
     route_all_controllers(app_router, plugin=None, path=app_path)
-    for item in plugins:
-        if plugins[item] is True:
-            try:
-                route_all_controllers(app_router, item)
-            except ImportError, e:
-                if debug:
-                    logging.error("Plugin %s does not exist, or contains a bad import: %s" % (item, e))
-                    raise
-                else:
-                    pass
+    for item in plugin_list:
+        try:
+            route_all_controllers(app_router, item)
+        except ImportError, e:
+            if debug:
+                logging.error("Plugin %s does not exist, or contains a bad import: %s" % (item, e))
+                raise
+            else:
+                pass
 
 
 def redirect(url, to, app_router=None):
@@ -78,10 +76,7 @@ def route_all_controllers(app_router, plugin=None, path=None):
     Called in app.routes to automatically route all controllers in the app/controllers
     folder
     """
-    base_directory = os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__),
-            '..', '..'))
+    base_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
     if path is not None:
         path = os.path.dirname(path)
         path = path.replace(base_directory, "")
@@ -90,22 +85,17 @@ def route_all_controllers(app_router, plugin=None, path=None):
     if path is not None and path is not '':
         directory = os.path.join(path)
     else:
-        directory = os.path.join('application')
+        directory = os.path.join('application', 'controllers')
+        if os.path.exists(directory) is False:
+            directory = os.path.join('application')
 
     if plugin:
         directory = os.path.join('plugins', plugin, 'controllers')
-
-        # import the root plugin module first, this enables all templates and listeners
-        #plugin_module = __import__('plugins.%s' % plugin, fromlist=['*'])
-        #(plugin_module)
         plugins.register(plugin)
 
-
     directory = os.path.join(base_directory, directory)
-    # the length of the path before "app/controllers"
     base_directory_path_len = len(base_directory.split(os.path.sep))
-    
-    # check if [base_directory]/app/controllers exists
+
     if not os.path.exists(directory):
         return
 
@@ -113,7 +103,7 @@ def route_all_controllers(app_router, plugin=None, path=None):
     for root_path, _, files in os.walk(directory):
         for file in files:
             partial_path = root_path.split(os.path.sep)[base_directory_path_len:]
-            if file.endswith(".py") and file != '__init__.py' and file != 'settings.py':
+            if file.endswith(".py") and file not in ['__init__.py', 'settings.py']:
                 try:
                     name = file.split('.')[0]
                     module_path = '.'.join(partial_path)

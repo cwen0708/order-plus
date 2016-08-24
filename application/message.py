@@ -61,6 +61,17 @@ class AccountClientModel(BasicModel):
     client_id = Fields.StringProperty(default=u"")
 
 
+class StoreClientModel(BasicModel):
+    class Meta:
+        behaviors = (Searchable,)
+        label_name = {
+            "title": u"團購名稱",
+            "store": u"商家",
+        }
+    store = Fields.CategoryProperty(kind=UserInfoModel)
+    client_id = Fields.StringProperty(default=u"")
+
+
 class MessageModel(BasicModel):
     class Meta:
         behaviors = (Searchable,)

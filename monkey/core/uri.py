@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import webapp2
 import routing
+from google.appengine.api import namespace_manager
 
 
 # Sentinel for the uri methods.
@@ -79,6 +80,12 @@ class Uri(object):
 
         return webapp2.uri_for(route_name, *args, **tkwargs)
 
+    def uri_action_link(self, action, item=None, *varargs, **kwargs):
+        if item is None:
+            return self.uri(action=action, *varargs, **kwargs)
+        else:
+            return self.uri(action=action, key=item.key.urlsafe(), *varargs, **kwargs)
+
     def uri_exists(self, route_name=None,
                    prefix=route_sentinel,
                    controller=route_sentinel,
@@ -90,7 +97,26 @@ class Uri(object):
         if not route_name:
             route_name = self.get_route_name(prefix, controller, action)
 
-        return routing.route_name_exists(route_name)
+        return routing.route_name_exists(route_name), route_name
+
+    def uri_exists_with_permission(self, route_name=None, *args, **kwargs):
+        if "namespace" in kwargs:
+            namespace_manager.set_namespace(kwargs["namespace"])
+        if "item" in kwargs:
+            item = kwargs["item"]
+            try:
+                self.uri(route_name, key=self.util.encode_key(item))
+                returnVal = True
+                return_name = route_name
+            except:
+                returnVal = False
+                return_name = route_name
+        else:
+            returnVal, return_name = self.uri_exists(route_name=route_name, *args, **kwargs)
+        if returnVal and return_name not in self.prohibited_actions:
+            return True
+        else:
+            return False
 
     def on_uri(self, route_name=None,
                prefix=route_sentinel,

@@ -29,3 +29,15 @@ __all__ = (
     "default_authorizations"
 )
 
+
+mobile_key_action_helper = {
+    "group": u"後台帳號管理",
+    "actions": [
+        {"action": "list", "name": u"手機驗証碼"},
+        {"action": "add", "name": u"新增驗証碼"},
+        {"action": "edit", "name": u"編輯驗証碼"},
+        {"action": "view", "name": u"檢視驗証碼"},
+        {"action": "delete", "name": u"刪除驗証碼"},
+    ],
+    "related_action": "application_user_role"
+}

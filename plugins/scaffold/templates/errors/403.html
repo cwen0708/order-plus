@@ -1,7 +1,15 @@
-{% extends "layouts/error.html" %}
+{% if is_backend %}
+    {% extends "backend/error.html" %}
+{% else %}
+    {% extends "layouts/error.html" %}
+{% endif %}
 
-{% block title %}Access Denied{% endblock %}
-{% block subtitle %}Unauthorized request{% endblock %}
+{% block title %}{% if is_backend %}權限不足{% else %}Access Denied{% endif %}{% endblock %}
+{% block subtitle %}{% if is_backend %}您沒有足夠的權限進行此操作{% else %}Unauthorized request{% endif %}{% endblock %}
+
 {% block body %}
+{% if is_backend %}
+{% else %}
 The server has refused to respond to the request because you are unauthorized or do not have the proper permission to view this resource.
+{% endif %}
 {% endblock %}

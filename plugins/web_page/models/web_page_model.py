@@ -7,12 +7,11 @@
 # Date: 2015/7/12.
 
 from monkey import BasicModel
-from monkey import Searchable
 from monkey import Fields
+
 
 class WebPageModel(BasicModel):
     class Meta:
-        behaviors = (Searchable,)
         label_name = {
             "title": u"標題",
             "title_en": u"英文標題",
@@ -28,4 +27,4 @@ class WebPageModel(BasicModel):
 
     @classmethod
     def get_by_url(cls, page_url):
-        return cls.query(WebPageModel.page_url== page_url).get()
+        return cls.query(cls.page_url == page_url).get()

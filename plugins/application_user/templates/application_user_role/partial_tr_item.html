@@ -1,0 +1,27 @@
+{% import "backend/macros.html" as s with context %}
+{%- set list = context[scaffolding.plural] -%}
+{% for item in list -%}
+{%- if item.level < 1000 or (administrator_level > 1000 and item.level > 1000) -%}
+<tr id="node_{{ item.sort }}" data-id="{{ print_key(item) }}">
+    <td class="project-status"></td>
+    {% for property in scaffolding.display_properties_in_list -%}
+    <td>{%- if property.find("is_") >= 0 %}
+        <div class="checkbox checkbox-success">
+            <input type="checkbox" {% if item[property] %}checked{% endif %} id="{{ print_key(item) }}"
+                   class="btn-checkbox-json">
+            <label for="{{ print_key(item) }}">{{s.scaffold_field_name("short_" + property)}}</label>
+        </div>
+        {% else -%}{{print_value(item[property])}}{%- endif -%}
+    </td>
+    {% endfor -%}
+    <td class="text-right print-hide sortable-hide">
+{% if uri_exists_with_permission(action='action_permissions') and administrator_level >= item.level %}<a href="{{uri_action_link('action_permissions', item)}}" class="btn btn-white btn-sm"><i class="fa fa-shield"></i> 權限 </a>{% endif %}
+{% if uri_exists_with_permission(action="view") %}<a href="{{uri_action_link('view', item)}}" class="btn btn-white btn-sm"><i class="icon">remove_red_eye</i> 檢視 </a>{% endif %}
+{% if uri_exists_with_permission(action='edit') and administrator_level >= item.level %}<a href="{{uri_action_link('edit', item)}}" class="btn btn-white btn-sm"><i class="icon">mode_edit</i> 編輯 </a>{% endif %}
+{% if uri_exists_with_permission(action='sort_up') %}<a href="{{uri_action_link('sort_up', item)}}" class="btn-json btn btn-white btn-sm visible-lg-inline-block visible-md-inline-block"><i class="icon">keyboard_arrow_up</i></a>{% endif %}
+{% if uri_exists_with_permission(action='sort_down') %}<a href="{{uri_action_link('sort_down', item)}}" class="btn-json btn btn-white btn-sm visible-lg-inline-block visible-md-inline-block"><i class="icon">keyboard_arrow_down</i></a>{% endif %}
+{% if uri_exists_with_permission(action='delete') and administrator_level >= item.level and administrator_role != item.key %}<a href="{{uri_action_link('delete', item)}}" class="btn-json btn-json-delete btn btn-white btn-sm visible-lg-inline-block visible-md-inline-block"><i class="icon">delete</i> 刪除 </a>{% endif %}
+    </td>
+</tr>
+{%- endif %}
+{% endfor -%}

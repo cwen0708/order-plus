@@ -2,14 +2,15 @@
 {% set data = context[scaffolding.plural] %}
 
 {% macro process_box(item) -%}
-    <li class="dd-item dd-item-with-media" data-id="{{ item.id }}">
-        <div class="dd-handle bg-grey-lg">{{ item.title }}</div><div class="dd-content">{{ item.desc }}</div>
+    <li class="dd-item dd3-item" data-id="{{ item.id }}">
+        <div class="dd-handle dd3-handle {{ item.bg }}">Drag</div>
+        <div class="dd3-content {{ item.bg }}" title="{{ item.desc }}">{{ item.title }}</div>
         {% if item.children %}
-        <ol class="dd-list">
-            {% for child in item.children %}
-                {{ process_box(child) }}
-            {% endfor %}
-        </ol>
+            <ol class="dd-list">
+                {% for child in item.children %}
+                    {{ process_box(child) }}
+                {% endfor %}
+            </ol>
         {% endif %}
     </li>
 {%- endmacro %}
@@ -17,10 +18,19 @@
 {% block page_title %}訂單流程{% endblock %}
 {% block content %}
     <div class="row">
-        <div class="col-xs-12 col-md-8">
+        <div class="panel panel-bordered">
+            <div class="panel-body">
+            {% for item in process_collection %}
+                <a href="/console/store/process/edit/{{ item.id }}" style="float: left; margin-right: 15px;">{{ item.title }}</a>
+            {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-md-6">
             <div class="panel panel-bordered">
                 <div class="panel-heading">
-                  <h3 class="panel-title">流程規劃 - {{ page_name }}</h3>
+                    <h3 class="panel-title">流程規劃 - {{ page_name }}</h3>
                 </div>
                 <div class="panel-body">
                     <div class="dd" data-plugin="nestable" id="process_box" style="min-height: 50px;">
@@ -40,10 +50,10 @@
                 </div>
             </div>
         </div>
-        <div class="col-xs-12 col-md-4">
+        <div class="col-xs-12 col-md-3">
             <div class="panel panel-bordered">
                 <div class="panel-heading">
-                  <h3 class="panel-title">流程工具箱</h3>
+                    <h3 class="panel-title">專屬</h3>
                 </div>
                 <div class="panel-body">
                     <div class="dd" data-plugin="nestable" id="tool_box">
@@ -56,36 +66,130 @@
 
                 </div>
             </div>
+            <div class="panel panel-bordered">
+                <div class="panel-heading">
+                    <h3 class="panel-title">切換</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="dd" data-plugin="nestable" id="tool_box">
+                        <ol class="dd-list">
+                            {% for item in toolbox_jump %}
+                                {{ process_box(item) }}
+                            {% endfor %}
+                        </ol>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-3">
+            <div class="panel panel-bordered">
+                <div class="panel-heading">
+                    <h3 class="panel-title">判斷</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="dd" data-plugin="nestable" id="tools_box_if">
+                        <ol class="dd-list">
+                            {% for item in toolbox_if %}
+                                {{ process_box(item) }}
+                            {% endfor %}
+                        </ol>
+                    </div>
+
+                </div>
+            </div>
+            <div class="panel panel-bordered">
+                <div class="panel-heading">
+                    <h3 class="panel-title">狀態</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="dd" data-plugin="nestable" id="tools_box_status">
+                        <ol class="dd-list">
+                            {% for item in toolbox_status %}
+                                {{ process_box(item) }}
+                            {% endfor %}
+                        </ol>
+                    </div>
+
+                </div>
+            </div>
         </div>
     </div>
 
-    <textarea id="process_box_output" rows="6" style="display: none; margin: 30px; width: calc(100% - 60px)">{{ source }}</textarea>
+    <textarea id="process_box_output" rows="6"
+              style="display: none; margin: 30px; width: calc(100% - 60px)">{{ source }}</textarea>
 {% endblock %}
 {% block page_scripts %}
     <script type="text/javascript">
-    var dd_updateOutput = function(e) {
-        var list   = e.length ? e : $(e.target),
-            output = list.data('output');
-        if (window.JSON) {
-            output.val(window.JSON.stringify(list.nestable('serialize')));//, null, 2));
-        } else {
-            output.val('JSON browser support required for this demo.');
+        function setErrorClass(id, error_msg){
+            var $item = $('.dd-item[data-id="' + id + '"]').addClass("error").find(".dd3-content");
+            if ($item.data("title") === undefined){
+                $item.data("title", $item.attr("title"));
+            }
+            $item.attr("title", error_msg);
         }
-    };
-    $(function(){
-        $.components.init('nestable');
-        $(".dd").each(function(){
-            dd_updateOutput($(this).data('output', $('#' + $(this).attr("id") + '_output')));
-            $(this).on('change', dd_updateOutput);
+        function checkItem(list, is_children){
+            for (var i = 0; i < list.length; i++) {
+                var item_id = list[i].id;
+                var item_children = list[i].children;
+                if (item_id.indexOf("if") >= 0) {
+                    if (item_children === undefined) {
+                        setErrorClass(item_id, "IF 判斷句缺少子項目");
+                    }
+                    if (is_children){
+                        setErrorClass(item_id, "子項目不能有 IF 判斷句");
+                    }
+                }
+                if (item_children !== undefined) {
+                    if (item_id.indexOf("if") < 0) {
+                        setErrorClass(item_id, "非 IF 判斷句不可擁有子項目");
+                    }
+                }
+                if (item_id.indexOf("if") >= 0 && item_children !== undefined) {
+                    checkItem(item_children, true);
+                }
+            }
+        }
+        var process_box_html = "";
+        var dd_updateOutput = function (e) {
+            var list = e.length ? e : $(e.target),
+                    output = list.data('output');
+            if (window.JSON) {
+                output.val(window.JSON.stringify(list.nestable('serialize')));//, null, 2));
+            } else {
+                output.val('JSON browser support required for this demo.');
+            }
+            var j = eval($("#process_box_output").val());
+            $(".dd-item.error").each(function(){
+                var $item = $(this).removeClass("error").find(".dd3-content");
+                if ($item.data("title") !== undefined) {
+                    $item.attr("title", $item.data("title"));
+                }
+            });
+            checkItem(j, false);
+            process_box_html = $("#process_box").text();
+        };
+        $(function () {
+            $.components.init('nestable');
+            $(".dd").each(function () {
+                dd_updateOutput($(this).data('output', $('#' + $(this).attr("id") + '_output')));
+                $(this).on('change', dd_updateOutput);
+            });
+            $("#save_process").click(function () {
+                if ($(".dd-item.error").length >0){
+                    alert("請先確認是否有錯誤");
+                    return;
+                }
+                json("/console/store/process/edit/{{ page_id }}/save.json", "p=" + $("#process_box_output").val(), function (data) {
+                    console.log(data);
+                    alert("Save Done");
+                })
+            });
+            setInterval(function () {
+                if (process_box_html != $("#process_box").text()){
+                    $("#process_box").change();
+                }
+            }, 1000);
         });
-        $("#save_process").click(function(){
-            json("/console/store/process/edit/{{ page_id }}/save.json", "p=" + $("#process_box_output").val(), function(data){
-                console.log(data);
-            })
-        });
-        setInterval(function(){
-            $("#process_box").change();
-        }, 1000);
-    });
     </script>
 {% endblock %}

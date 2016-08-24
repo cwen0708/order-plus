@@ -1,22 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import webapp2
-import re
+import re, os
 import weakref
-from webapp2 import cached_property
-from webapp2_extras import sessions
+import webapp2
+import logging
+import time
+import base64
+from monkey.core import plugins as plugins_m
 from google.appengine.api import users
-from uri import Uri
-import views
-import routing
-from json_util import parse as json_parse, stringify as json_stringify
-import inflector, response_handlers, request_parsers, events
-from bunch import Bunch
-from monkey.core.ndb import encode_key, decode_key
+from google.appengine.api import namespace_manager
+from webapp2 import cached_property
+from webapp2_extras import routes
+from webapp2_extras import sessions
+from monkey.core.uri import Uri
+from monkey.core import inflector, response_handlers, request_parsers, events
+from monkey.core import views
+from monkey.core import routing
 from monkey.core import scaffold, auth
 from monkey.core import settings
+from monkey.core import time_util
+from monkey.core.datastore import DataStore
+from monkey.core.bunch import Bunch
 from monkey.core.params import ParamInfo
-import logging
+from monkey.core.ndb import encode_key, decode_key
+from monkey.core.json_util import parse as json_parse, stringify as json_stringify
+from monkey.components.pagination import Pagination
+from monkey.components.search import Search
+
 
 _temporary_route_storage = []
 _temporary_menu_storage = []
@@ -44,6 +54,7 @@ def route_menu(*args, **kwargs):
                 kwargs["uri"] = "%s:%s:%s" % (prefix, ctrl, action)
             else:
                 kwargs["uri"] = "%s:%s" % (ctrl, action)
+            kwargs["controller"] = ctrl
         _temporary_menu_storage.append(kwargs)
         return f
     return inner
@@ -55,21 +66,31 @@ def get_route_menu(list_name=u"", controller=None):
         return []
 
     for menu in _temporary_menu_storage:
+        if menu["controller"] in controller.prohibited_controller:
+            continue
         if menu["list_name"] != list_name:
             continue
-        url = ""
+        uri = menu["uri"]
+        if uri in controller.prohibited_actions:
+            continue
         try:
-            url = controller.uri(menu["uri"])
+            url = controller.uri(uri)
         except:
             continue
-        if menu["sort"]:
+        if "sort" in menu:
             sort = menu["sort"]
         else:
             sort = 1
+        if "icon" in menu:
+            icon = menu["icon"]
+        else:
+            icon = "list"
+
         insert_item = {
-            "uri": menu["uri"],
+            "uri": uri,
             "url": url,
             "text": menu["text"],
+            "icon": icon,
             "sort": sort,
             "level": 1
         }
@@ -205,7 +226,7 @@ class Controller(webapp2.RequestHandler, Uri):
         #: When declaring a controller, this must be a list or tuple of classes.
         #: When the controller is constructed, ``controller.components`` will
         #: be populated with instances of these classes.
-        components = tuple()
+        components = (scaffold.Scaffolding,)
 
         #: Prefixes are added in from of controller (like admin_list) and will cause routing
         #: to produce a url such as '/admin/name/list' and a name such as 'admin:name:list'
@@ -262,17 +283,49 @@ class Controller(webapp2.RequestHandler, Uri):
         #: Encodes a json string.
         stringify_json = staticmethod(json_stringify)
 
+        encode_base64 = staticmethod(base64.urlsafe_b64encode)
+        decode_base64 = staticmethod(base64.urlsafe_b64decode)
+
+        @staticmethod
+        def print_img(img_url=None, width=150, apikey=None):
+            if img_url is None:
+                return ""
+            img_url = str(img_url)
+            if apikey is None:
+                return img_url
+            if img_url.find("filestack") > 0:
+                return "https://process.filestackapi.com/%s/resize=width:%s/%s" % (apikey, str(width))
+            return img_url
+
+        @classmethod
+        def localize_time(cls, datetime, strftime='%Y/%m/%d %H:%M:%S'):
+            return time_util.localize(datetime).strftime(strftime)
+
         def get_menu(self, list_name):
             return get_route_menu(list_name, self._controller)
 
     def __init__(self, *args, **kwargs):
+        self.request_start_time = time.time()
         super(Controller, self).__init__(*args, **kwargs)
         self.name = inflector.underscore(self.__class__.__name__)
         self.proper_name = self.__class__.__name__
         self.util = self.Util(weakref.proxy(self))
         self.route = None
+        self.administrator = None
+        self.administrator_level = 0
+        self.prohibited_actions = []
+        self.prohibited_controller = []
         self.params = ParamInfo(self.request)
         self.settings = settings
+        self.logging = logging
+        self.datastore = DataStore(self)
+        self.server_name = os.environ["SERVER_NAME"]
+        self.host_info = self.settings.get_host_item(self.server_name)
+        self.namespace = self.host_info.namespace
+        self.plugins = str(self.host_info.plugins).split(",")
+        self.plugins_all = []
+        self.theme = self.host_info.theme
+        namespace_manager.set_namespace(self.namespace)
 
     def _build_components(self):
         self.events.before_build_components(controller=self)
@@ -286,7 +339,10 @@ class Controller(webapp2.RequestHandler, Uri):
                     name = inflector.underscore(cls.__name__)
                 self.components[name] = cls(weakref.proxy(self))
         else:
-            self.components = Bunch()
+            if hasattr(self.Meta, 'model'):
+                self.components = (scaffold.Scaffolding, )
+            else:
+                self.components = Bunch()
         self.events.after_build_components(controller=self)
 
     def _init_route(self):
@@ -345,14 +401,23 @@ class Controller(webapp2.RequestHandler, Uri):
                         continue
                     route.template = route.template.replace('['+i+']', value)
             router.add(route)
-
         events.fire('controller_build_routes', cls=cls, router=router)
 
-    def startup(self):
+    def _startup(self):
         """
         Called when a new request is received and before authorization and dispatching.
         This is the main point in which to listen for events or change dynamic configuration.
         """
+        self.startup()
+        self.plugins += plugins_m.get_all_in_application()
+        self.plugins_all = plugins_m.get_all_installed()
+        self.prohibited_controller = set(self.plugins_all) - set(self.plugins)
+        if self.prohibited_actions != []:
+            if self.name in self.prohibited_controller:
+                self.logging.debug(u"%s in %s" % (self.name, self.prohibited_actions))
+                return self.abort(404)
+
+    def startup(self):
         pass
 
     def _is_authorized(self):
@@ -415,7 +480,7 @@ class Controller(webapp2.RequestHandler, Uri):
         self.context.set_dotted('this.session', self.session)
 
         self.events.before_startup(controller=self)
-        self.startup()
+        self._startup()
         self.events.after_startup(controller=self)
 
         # Authorization
@@ -484,12 +549,13 @@ class Controller(webapp2.RequestHandler, Uri):
 
         return parser.process(self.request, container, fallback)
 
-    def paging(self, query, size=None, page=None, near=10):
+    def paging(self, query, size=None, page=None, near=None):
         if page is None:
-            page = int(self.request.params.get("page", 1))
+            page = int(self.params.get_integer("page", 1))
         if size is None:
-            size = int(self.request.params.get("size", 10))
-        near = int(self.request.params.get("near", near))
+            size = int(self.params.get_integer("size", 10))
+        if near is None:
+            near = int(self.params.get_integer("near", 10))
         near_2 = near // 2
         pager = {
             "prev": 0,

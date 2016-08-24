@@ -1,5 +1,5 @@
 application: order-plus
-version: n3
+version: monkey
 runtime: python27
 api_version: 1
 threadsafe: yes
@@ -14,8 +14,8 @@ inbound_services:
 - mail
 
 includes:
-- plugins/web_file/include.yaml
 - application/include.yaml
+- plugins/web_file/include.yaml
 
 handlers:
 - url: /plugins/(.*?)/static/(.*)
@@ -23,9 +23,20 @@ handlers:
   upload: plugins/(.*?)/static/(.*)
   secure: always
 
-- url: /cache.manifest
-  static_files: static/cache.manifest
-  upload: static/cache.manifest
+- url: /bower_components/(.*?)
+  static_files: bower_components/\1
+  upload: bower_components/(.*?)
+  secure: always
+
+- url: /(.*?).manifest
+  static_files: static/\1.manifest
+  upload: static/(.*?).manifest
+  mime_type: text/cache-manifest
+
+- url: /(.*?).appcache
+  static_files: static/\1.appcache
+  upload: static/(.*?).appcache
+  mime_type: text/cache-manifest
 
 - url: /manifest-3.json
   static_files: static/manifest.json
@@ -97,8 +108,8 @@ libraries:
   version: latest
 - name: lxml
   version: latest
-- name: ssl
-  version: latest
+#- name: ssl
+#  version: latest
 
 skip_files:
 - ^(.*/)?#.*#$

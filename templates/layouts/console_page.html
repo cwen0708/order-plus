@@ -27,7 +27,7 @@
     {% endif %}
 {%- endmacro %}
 
-{%- block page_before_content -%}{{this.events.layout_before_content()}}{%- endblock -%}
+{%- block page_before_content -%}{{events.layout_before_content()}}{%- endblock -%}
 {%- block nav_title -%}{% if page_title_for_nav %}<div class="auto-title hide">{{ page_title_for_nav }}</div>{% endif %}{%- endblock -%}
 {%- block page_header -%}
     <div class="page-header">
@@ -57,6 +57,6 @@
 {%- endblock -%}
 {%- include "elements/flash_messages.html" with context -%}
 {%- block page_footer -%}{%- endblock -%}
-{%- block page_after_content -%}{{this.events.layout_after_content()}}{%- endblock -%}
-{%- block page_scripts -%}{{this.events.layout_scripts()}}{%- endblock -%}
+{%- block page_after_content -%}{{events.layout_after_content()}}{%- endblock -%}
+{%- block page_scripts -%}{{events.layout_scripts()}}{%- endblock -%}
 

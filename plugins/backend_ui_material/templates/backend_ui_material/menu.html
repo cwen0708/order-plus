@@ -1,0 +1,21 @@
+				<a class="menu-logo gf-title anonymous-high-light" href="/">Bilist</a>
+				<div class="user-box">
+					<div class="avatar"></div>
+					<div class="user-name">kit kit </div>
+				</div>
+				<ul class="nav">
+                    {% for item in menus -%}
+                    {%- if item.submenu -%}
+                    <li>
+                        <a class="waves-attach" data-toggle="collapse" href="#menu_{{ print_key(item) }}"></a>
+						<ul class="menu-collapse collapse" id="menu_{{ print_key(item) }}">
+                            {%- for subitem in item.submenu %}
+                            <li><a class="waves-attach" href="{{ subitem.url }}" data-hard-url="{{ subitem.url }}">{{ subitem.text }} </a></li>
+                            {%- endfor %}
+                        </ul>
+                    </li>
+                    {%- else -%}
+                    <li><a class="waves-attach" href="{{ item.url }}" data-hard-url="{{ item.url }}">{{ item.text }}</a></li>
+                    {% endif %}
+                    {%- endfor %}
+				</ul>

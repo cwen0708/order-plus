@@ -5,10 +5,10 @@
 {% block layout_content %}
 
 {% block form_tag %}
-<form method="POST" action="{{scaffolding.form_action|default(this.uri(_pass_all=True), True)}}" class="form" enctype="{{scaffolding.form_encoding|default('application/x-www-form-urlencoded', True)}}" role="form">
+<form method="POST" action="{{scaffolding.form_action|default(uri(_pass_all=True), True)}}" class="form" enctype="{{scaffolding.form_encoding|default('application/x-www-form-urlencoded', True)}}" role="form">
 {% endblock %}
 
-    {{this.events.before_form_fields()}}
+    {{events.before_form_fields()}}
 
     {{self.form_actions()}}
 
@@ -27,8 +27,8 @@
     {% block form_actions %}
     <div class="controls form-actions">
         {% block cancel_button %}
-            {% if uri_exists(action='list') %}
-            <a class="btn btn-default" href="{{uri(action='list')}}">
+            {% if uri_exists_with_permission(action='list') %}
+            <a class="btn btn-default" href="{{ uri(action='list')}}">
                 {% block cancel_text %}Cancel{% endblock %}
             </a>
             {% endif %}
@@ -41,7 +41,7 @@
     </div>
     {% endblock %}
 
-    {{this.events.after_form_fields()}}
+    {{events.after_form_fields()}}
 
 </form>
 {% endblock %}

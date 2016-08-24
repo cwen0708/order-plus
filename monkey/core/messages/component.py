@@ -3,6 +3,7 @@ from monkey.core.response_handlers import ResponseHandler
 from monkey.core.protopigeon import Message, model_message, to_message, messages
 import logging
 
+from apiclient.discovery import build
 
 def list_message(message_type):
     name = message_type.__name__ + 'List'

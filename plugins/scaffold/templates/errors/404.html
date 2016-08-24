@@ -1,4 +1,9 @@
-{% extends "layouts/error.html" %}
+{% if is_backend %}
+    {% extends "backend/error.html" %}
+{% else %}
+    {% extends "layouts/error.html" %}
+{% endif %}
+
 
 {% block title %}Not Found{% endblock %}
 {% block subtitle %}This resouce could not be located{% endblock %}

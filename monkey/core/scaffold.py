@@ -3,9 +3,19 @@
 from monkey.core import inflector
 from monkey.core.gaeforms import model_form
 from monkey.components.flash_messages import FlashMessages
+from google.appengine.ext.ndb.google_imports import datastore_errors
 #, autoadmin
 #(autoadmin)  # load autoadmin here, if any controller use scaffold it'll be included and initialized
 
+def generate_upload_url(success_path):
+    from google.appengine.ext import blobstore
+    from monkey import settings
+    cloud_storage_bucket = ""
+    if settings.get('upload').get('use_cloud_storage'):
+        cloud_storage_bucket = settings.get('upload', {}).get('bucket')
+    return blobstore.create_upload_url(
+            success_path= success_path,
+            gs_bucket_name=cloud_storage_bucket)
 
 class Scaffolding(object):
     """
@@ -59,19 +69,52 @@ class Scaffolding(object):
         templates.append('scaffolding/%s.%s' % (action, ext))
 
     def _on_before_render(self, controller):
+        scaffold_title = {}
         try:
-            scaffold_title = controller.meta.scaffold_title
+            if hasattr(controller.scaffold, "title"):
+                scaffold_title_temp = controller.scaffold.title
+                if hasattr(scaffold_title_temp, "items"):
+                    scaffold_title = scaffold_title_temp
+                    for item in scaffold_title_temp:
+                        scaffold_title.append(item)
+                else:
+                    for item in scaffold_title_temp:
+                        scaffold_title[item["action"]] = item["name"]
+        except:
+            pass
+        try:
+            scaffold_description = controller.scaffold.description
         except AttributeError:
-            scaffold_title = {}
+            scaffold_description = {}
+        try:
+            scaffold_field_name = controller.scaffold.field_name
+        except AttributeError:
+            scaffold_field_name = {}
+        scaffold_languages = []
+        languages = {
+            "zhtw": {"lang":"zhtw", "title": u"繁體中文"},
+            "zhcn": {"lang":"zhcn", "title": u"简体中文"},
+            "enus": {"lang":"enus", "title": u"英語"},
+        }
+        try:
+            for lang in controller.scaffold.languages:
+                scaffold_languages.append(languages[lang])
+        except AttributeError:
+            pass
+
         controller.context['scaffolding'] = {
             'name': controller.name,
             'proper_name': controller.proper_name,
-            'title': scaffold_title,
+            'scaffold_title': scaffold_title,
+            'scaffold_description': scaffold_description,
+            'scaffold_field_name': scaffold_field_name,
+            'scaffold_language': scaffold_languages,
             'plural': controller.scaffold.plural,
             'singular': controller.scaffold.singular,
             'form_action': controller.scaffold.form_action,
             'form_encoding': controller.scaffold.form_encoding,
             'display_properties': controller.scaffold.display_properties,
+            'display_properties_in_list': controller.scaffold.display_properties_in_list,
             'layouts': controller.scaffold.layouts,
             'navigation': controller.scaffold.navigation
         }
@@ -82,6 +125,14 @@ class Scaffold(object):
     Scaffold Meta Object Base Class
     """
     def __init__(self, controller):
+        display_properties, model_form_data, redirect_url = None, None, None
+        if hasattr(controller.meta, "Model"):
+            display_properties=sorted([name for name, property in controller.meta.Model._properties.items()])
+            model_form_data=model_form(controller.meta.Model)
+        try:
+            redirect_url = controller.uri(action='list') if controller.uri_exists(action='list') else None
+        except KeyError:
+            pass
 
         defaults = dict(
             query_factory=default_query_factory,
@@ -89,18 +140,28 @@ class Scaffold(object):
             title=inflector.titleize(controller.proper_name),
             plural=inflector.underscore(controller.name),
             singular=inflector.underscore(inflector.singularize(controller.name)),
-            ModelForm=model_form(controller.meta.Model),
-            display_properties=sorted([name for name, property in controller.meta.Model._properties.items()]),
-            redirect=controller.uri(action='list') if controller.uri_exists(action='list') else None,
+            ModelForm=model_form_data,
+            display_properties=display_properties,
+            display_properties_in_list=display_properties,
+            redirect=redirect_url,
             form_action=None,
             form_encoding='application/x-www-form-urlencoded',
             flash_messages=True,
             layouts={
                 None: 'layouts/default.html',
-                'console': 'layouts/console.html'
             },
-            navigation={}
+            navigation={},
+            field_name={
+                "created": u"建立時間",
+                "modified": u"修改時間",
+                "sort": u"排序值",
+                "is_enable": u"啟用"
+            }
         )
+        try:
+            defaults["field_name"].update(controller.meta.Model.Meta.label_name)
+        except:
+            pass
 
         for k, v in defaults.iteritems():
             if not hasattr(self, k):
@@ -161,7 +222,7 @@ def delegate_create_factory(controller):
 
 def _load_model(controller):
     # Attempt to import the model automatically
-    model_name = inflector.singularize(controller.__class__.__name__) + 'Model'
+    model_name = controller.__class__.__name__ + 'Model'
     try:
         import_form_base = str(controller.__module__)
         module = __import__(import_form_base, fromlist=['*'])
@@ -172,8 +233,9 @@ def _load_model(controller):
             s = '%s.models.%s' % (import_form_base, inflector.underscore(model_name))
             module = __import__(s, fromlist=['*'])
             setattr(controller.Meta, 'Model', getattr(module, model_name))
-        except (ImportError, AttributeError):
-            raise RuntimeError("Scaffold coudn't automatically determine a model class for controller %s, please assign it a Meta.Model class variable." % controller.__class__.__name__)
+        except (ImportError, AttributeError, ValueError):
+            import logging
+            logging.debug("Scaffold coudn't automatically determine a model class for controller %s, please assign it a Meta.Model class variable." % controller.__class__.__name__)
 
 
 def _flash(controller, *args, **kwargs):
@@ -197,13 +259,27 @@ def list(controller):
         controller.context.set(**{
             controller.scaffold.plural: controller.scaffold.query_factory(controller)
         })
+    if controller.scaffold.plural in controller.context:
+        try:
+            last_record = None
+            lst = controller.context[controller.scaffold.plural]
+            if lst.__class__.__name__ == "list":
+                last_record = lst[-1]
+            else:
+                lst_record = lst.fetch()
+                if len(lst_record) > 0:
+                    last_record = lst_record[-1]
+            if last_record:
+                controller.context["last_record_date"] = last_record.modified
+        except:
+            pass
 
 
 def view(controller, key):
     item = controller.util.decode_key(key).get()
     if not item:
         return 404
-
+    controller.context["last_record_date"] = item.modified
     controller.context.set(**{
         controller.scaffold.singular: item})
 
@@ -212,7 +288,7 @@ def save_callback(controller, item, parser):
     parser.update(item)
     controller.events.scaffold_before_save(controller=controller, container=parser.container, item=item)
     item.put()
-    controller.events.scaffold_after_save(controller=controller, container=parser.container, item=item)
+    controller.events. scaffold_after_save(controller=controller, container=parser.container, item=item)
 
 
 def parser_action(controller, item, callback=save_callback):
@@ -221,32 +297,53 @@ def parser_action(controller, item, callback=save_callback):
 
     if controller.request.method in ('PUT', 'POST', 'PATCH'):
         controller.response.headers["Request-Method"] = controller.request.method
+        controller.events.scaffold_before_validate(controller=controller, parser=parser, item=item)
         if parser.validate():
             controller.events.scaffold_before_apply(controller=controller, container=parser.container, item=item)
-
             callback(controller, item, parser)
             controller.events.scaffold_after_apply(controller=controller, container=parser.container, item=item)
-
+            response_data = {
+                "response_info": "success",
+                "response_method": controller.params.get_string("routeAction"),
+            }
+            if "data" in controller.context:
+                controller.context["data"].update(response_data)
+            else:
+                controller.context["data"] = response_data
             controller.context.set(**{
-                controller.scaffold.singular: item})
+                controller.scaffold.singular: item,
+            })
 
             _flash(controller, u'項目已儲存', 'success')
 
             if controller.scaffold.redirect:
                 return controller.redirect(controller.scaffold.redirect)
-            if controller.request.content_type == 'application/json':
-                controller.meta.change_view("json")
-                controller.context["data"] = {"info": "success"}
         else:
             controller.context['errors'] = parser.errors
-            if controller.request.content_type == 'application/json':
-                controller.context["data"] = {"errors": parser.errors}
-                controller.meta.change_view("json")
+            response_data = {
+                "errors": parser.errors,
+                "method": controller.params.get_string("routeAction"),
+            }
+            if "data" in controller.context:
+                controller.context["data"].update(response_data)
+            else:
+                controller.context["data"] = response_data
             _flash(controller, u'表單欄位的值有誤，請確認後再試一次', 'error')
+
+    # 檢查是否有語系欄位
+    lang = []
+    for field in parser.container._fields:
+        if field.find("_lang_") > 0:
+            field_name, field_lang = field.split("_lang_")
+            if field_lang not in lang:
+                lang.append(field_lang)
+    controller.scaffold.languages = lang
 
     controller.context.set(**{
         'form': parser.container,
         controller.scaffold.singular: item})
+    if controller.params.get_string("returnType") == u"json" or controller.request.content_type == 'application/json':
+        controller.meta.change_view("json")
 
 
 def add(controller):
@@ -259,6 +356,7 @@ def edit(controller, key):
     item = controller.util.decode_key(key).get()
     if not item:
         return 404
+    controller.context["last_record_date"] = item.modified
     controller.scaffold.redirect = False
     return parser_action(controller, item)
 

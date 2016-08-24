@@ -1,6 +1,6 @@
 {% macro filter(uri, examples=[], _pass_all=False) -%}
 <div>
-    <form id='search-form' class="form-search form-inline" action="{{uri}}">
+    <form id='search-form' class="form-search form-inline" action="{{ uri}}">
         <div class="form-group">
             <input type="text" name='query' class="input-xlarge form-control search-query" value="{{search_query|default('')}}">
         </div>

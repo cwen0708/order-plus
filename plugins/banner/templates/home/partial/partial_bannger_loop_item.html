@@ -1,0 +1,7 @@
+{% import "backend/macros.html" as s with context %}
+{%- set banner_list = datastore.query("Banner", "all_enable", category="index") %}
+{%- if banner_list %}
+    {%- for banner in banner_list %}
+        <img src="{{ banner.image }}" title="{{ banner.title}}" />
+    {%- endfor %}
+{% endif %}
